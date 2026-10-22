@@ -1,0 +1,27 @@
+{
+    "about": "Front ends for boxes. 'class' is the object name; 'qml' the component (relative to this file). Entries with 'inlets'/'outlets' define objects that exist only as QML: the engine forwards their input to node.received and sends node.output(...) out. 'size' is the default size; 'widthArg'/'heightArg' read it from an argument, multiplied by 'widthScale'/'heightScale'. 'snapshots' polls bulk data into node.samples.",
+    "nodes": [
+        { "class": "bng", "qml": "Bang.qml", "help": "bang button" },
+        { "class": "tgl", "qml": "Toggle.qml", "aliases": ["toggle"], "help": "toggle" },
+        { "class": "hsl", "qml": "Slider.qml", "aliases": ["hslider"], "help": "horizontal slider" },
+        { "class": "vsl", "qml": "Slider.qml", "aliases": ["vslider"], "help": "vertical slider" },
+        { "class": "nbx", "qml": "NumberBox.qml", "aliases": ["numbox"], "help": "number box" },
+        { "class": "hradio", "qml": "Radio.qml", "aliases": ["hdl", "rdb", "radiobut", "radiobutton"] },
+        { "class": "vradio", "qml": "Radio.qml", "aliases": ["vdl"] },
+        { "class": "vu", "qml": "Vu.qml" },
+        { "class": "cnv", "qml": "Cnv.qml", "aliases": ["my_canvas"] },
+        { "class": "knob", "qml": "Knob.qml" },
+        { "class": "@floatatom", "qml": "AtomBox.qml" },
+        { "class": "@symbolatom", "qml": "AtomBox.qml" },
+        { "class": "@listbox", "qml": "AtomBox.qml" },
+        { "class": "@graph", "qml": "Graph.qml", "snapshots": true },
+        { "class": "scope~", "qml": "Scope.qml", "size": [200, 100], "snapshots": true },
+
+        { "class": "kbd", "qml": "Keyboard.qml", "inlets": 1, "outlets": 1,
+          "size": [252, 56], "widthArg": 0, "widthScale": 84,
+          "help": "piano keyboard: outputs note velocity" },
+        { "class": "xypad", "qml": "XYPad.qml", "inlets": 1, "outlets": 1,
+          "size": [120, 120], "widthArg": 0, "heightArg": 0,
+          "help": "2-D controller: outputs x y in 0..1" }
+    ]
+}

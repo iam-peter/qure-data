@@ -1,0 +1,43 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "GCC 14 + Qt 6 (RelWithDebInfo)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_CXX_COMPILER": "g++-14",
+                "CMAKE_C_COMPILER": "gcc-14",
+                "CMAKE_PREFIX_PATH": "$env{HOME}/Qt/6.12.0/gcc_64"
+            }
+        },
+        {
+            "name": "debug",
+            "inherits": "default",
+            "displayName": "Debug",
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+        },
+        {
+            "name": "asan",
+            "inherits": "debug",
+            "displayName": "Debug + ASan/UBSan",
+            "cacheVariables": { "QURE_SANITIZE": "ON" }
+        },
+        {
+            "name": "release-native",
+            "inherits": "default",
+            "displayName": "Release, tuned for this CPU",
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "QURE_NATIVE_ARCH": "ON" }
+        }
+    ],
+    "buildPresets": [
+        { "name": "default", "configurePreset": "default" },
+        { "name": "debug", "configurePreset": "debug" },
+        { "name": "asan", "configurePreset": "asan" }
+    ],
+    "testPresets": [
+        { "name": "default", "configurePreset": "default", "output": { "outputOnFailure": true } }
+    ]
+}
