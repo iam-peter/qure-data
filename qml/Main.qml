@@ -55,7 +55,7 @@ ApplicationWindow {
     FileDialog {
         id: openDialog
         title: qsTr("Open patch")
-        nameFilters: [qsTr("Pd patches (*.pd)"), qsTr("All files (*)")]
+        nameFilters: [qsTr("Patches (*.qd *.pd)"), qsTr("Qure Data patches (*.qd)"), qsTr("Pd patches (*.pd)"), qsTr("All files (*)")]
         fileMode: FileDialog.OpenFiles
         onAccepted: {
             for (const url of selectedFiles) {
@@ -73,7 +73,7 @@ ApplicationWindow {
             Action { text: qsTr("&Open…"); shortcut: StandardKey.Open; onTriggered: openDialog.open() }
             Menu {
                 title: qsTr("&Examples")
-                // Projects: a folder with main.pd, its own QML nodes and abstractions.
+                // Projects: a folder with main.qd, its own QML nodes and abstractions.
                 Repeater {
                     model: Qure.examples.filter(e => e.group === "projects")
                     MenuItem {

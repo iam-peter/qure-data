@@ -289,13 +289,13 @@ private slots:
         Box& b = add("dac~", 40, 100);
         QVERIFY(doc_->connectBoxes(canvas(), a.id, 0, b.id, 0));
         QTemporaryDir dir;
-        const QUrl url = QUrl::fromLocalFile(dir.filePath(QStringLiteral("saved.pd")));
+        const QUrl url = QUrl::fromLocalFile(dir.filePath(QStringLiteral("saved.qd")));
         QVERIFY(doc_->saveAs(url));
         QVERIFY(!doc_->modified());
         PatchDocument* reopened = session_->openPatch(url);
         QVERIFY(reopened);
         QCOMPARE(reopened, doc_); // already open: same document
-        QFile f(dir.filePath(QStringLiteral("saved.pd")));
+        QFile f(dir.filePath(QStringLiteral("saved.qd")));
         QVERIFY(f.open(QIODevice::ReadOnly));
         const QByteArray text = f.readAll();
         QVERIFY(text.contains("#X obj 40 40 osc~ 220;"));

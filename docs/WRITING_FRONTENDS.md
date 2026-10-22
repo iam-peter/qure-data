@@ -69,8 +69,8 @@ Node packs are found in three places, and none needs recompiling:
   before the patch opens. The [example projects](../examples/README.md)
   work this way.
 
-Abstractions (`.pd` files) are found next to the patch, or in
-`~/.local/share/QureData/abstractions/`.
+Abstractions (`.qd` files, or `.pd` from Pd) are found next to the patch,
+or in `~/.local/share/QureData/abstractions/`.
 
 ## The `node` API
 

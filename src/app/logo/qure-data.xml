@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Qure Data patches: Pd's text format with Qure Data's own extension. -->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-qure-data">
+    <comment>Qure Data patch</comment>
+    <sub-class-of type="text/plain"/>
+    <generic-icon name="qure"/>
+    <glob pattern="*.qd"/>
+  </mime-type>
+</mime-info>

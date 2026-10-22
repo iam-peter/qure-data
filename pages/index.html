@@ -111,7 +111,7 @@
 
   <h2>What it does</h2>
   <ul class="features">
-    <li>Opens and saves <code>.pd</code> files &ndash; subpatches, abstractions with <code>$0</code> and arguments, arrays, GUI objects &ndash; with about 175 objects of Pd vanilla, from <code>osc~</code> and <code>vline~</code> to <code>expr</code>.</li>
+    <li>Saves patches as <code>.qd</code> files in Pd&rsquo;s own format and opens Pd&rsquo;s <code>.pd</code> files &ndash; subpatches, abstractions with <code>$0</code> and arguments, arrays, GUI objects &ndash; with about 175 objects of Pd vanilla, from <code>osc~</code> and <code>vline~</code> to <code>expr</code>.</li>
     <li>Edits are compiled into a plan and swapped in between two audio blocks: changing a patch never blocks or clicks the sound. Subpatch inlets and outlets cost nothing at run time, and signal buffers are reused.</li>
     <li>Boxes and cords are drawn by shaders in a few batched draw calls, so even huge patches pan and zoom smoothly. Pd&rsquo;s keys work: Ctrl+1 for an object, autopatching, drag from an outlet to connect.</li>
     <li>Every GUI node &ndash; slider, toggle, keyboard, scope &ndash; is one QML file. A project can bring its own nodes in a <code>nodes/</code> folder next to the patch, without compiling anything.</li>

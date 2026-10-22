@@ -18,7 +18,7 @@
 
 | Directory | What | Depends on |
 |---|---|---|
-| `src/core` | Engine, objects, document model, `.pd` I/O, compiler | C++23 standard library only |
+| `src/core` | Engine, objects, document model, `.qd`/`.pd` I/O, compiler | C++23 standard library only |
 | `src/audio` | Drivers: miniaudio device, silent timer | core, miniaudio |
 | `src/app` | Qt Quick GUI (library `qure_gui`, QML module `Qure`) + `main.cpp` | core, audio, Qt |
 | `qml/` | Windows, editor, built-in node front ends | the `Qure` module |

@@ -12,6 +12,11 @@
 
 namespace qure {
 
+/// Qure Data saves its patches as `.qd`; the content is Pd's file format,
+/// so `.pd` files from Pd open (and abstractions resolve) as well.
+inline constexpr const char* kPatchExtension = ".qd";
+inline constexpr const char* kPdExtension = ".pd";
+
 /// Owns the engine, the object registry and every open document, and turns
 /// document edits into published plans. This is the whole non-GUI program:
 /// the Qt application and the tests both drive a Runtime.
@@ -42,7 +47,8 @@ public:
     /// Messages produced while compiling (e.g. "DSP loop detected").
     [[nodiscard]] const std::vector<std::string>& compileWarnings() const noexcept { return warnings_; }
 
-    // ---- abstractions ----
+    // ---- abstractions: `name.qd`, then `name.pd`, next to the patch or
+    // in a search path ----
     std::vector<std::filesystem::path> searchPaths;
     [[nodiscard]] std::filesystem::path findAbstraction(const Canvas& from, std::string_view name) const;
 

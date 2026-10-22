@@ -45,7 +45,7 @@ class Session : public QObject {
     Q_PROPERTY(QStringList captureDevices READ captureDevices NOTIFY devicesChanged)
     Q_PROPERTY(double cpuLoad READ cpuLoad NOTIFY statsChanged)
     /// Shipped examples: [{ title, path, group }], path relative to the
-    /// examples root, e.g. "drum-machine/main.pd".
+    /// examples root, e.g. "drum-machine/main.qd".
     Q_PROPERTY(QVariantList examples READ examples CONSTANT)
 
 public:

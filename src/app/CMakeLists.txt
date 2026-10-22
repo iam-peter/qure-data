@@ -29,7 +29,7 @@ list(TRANSFORM QURE_QML_RESOURCES PREPEND ${QML_DIR}/)
 # loaded from disk at runtime like any user node pack, not compiled in.
 set(EXAMPLES_DIR ${PROJECT_SOURCE_DIR}/examples)
 file(GLOB_RECURSE QURE_EXAMPLES RELATIVE ${EXAMPLES_DIR} CONFIGURE_DEPENDS
-    ${EXAMPLES_DIR}/*.pd ${EXAMPLES_DIR}/*.qml ${EXAMPLES_DIR}/*.js ${EXAMPLES_DIR}/*.json)
+    ${EXAMPLES_DIR}/*.qd ${EXAMPLES_DIR}/*.qml ${EXAMPLES_DIR}/*.js ${EXAMPLES_DIR}/*.json)
 foreach(f IN LISTS QURE_EXAMPLES)
     set_source_files_properties(${EXAMPLES_DIR}/${f} PROPERTIES QT_RESOURCE_ALIAS examples/${f})
     list(APPEND QURE_QML_RESOURCES ${EXAMPLES_DIR}/${f})
@@ -75,4 +75,5 @@ install(TARGETS qure
 if(UNIX AND NOT APPLE)
     install(FILES logo/qure.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
     install(FILES logo/qure.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+    install(FILES logo/qure-data.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/mime/packages)
 endif()

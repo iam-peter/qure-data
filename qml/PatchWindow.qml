@@ -67,8 +67,9 @@ ApplicationWindow {
     FileDialog {
         id: saveDialog
         fileMode: FileDialog.SaveFile
-        defaultSuffix: "pd"
-        nameFilters: [qsTr("Pd patches (*.pd)")]
+        // Qure Data patches are .qd; saving as .pd keeps a file Pd can open.
+        defaultSuffix: "qd"
+        nameFilters: [qsTr("Qure Data patch (*.qd)"), qsTr("Pd patch (*.pd)")]
         onAccepted: win.doc.saveAs(selectedFile)
     }
 

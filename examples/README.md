@@ -8,8 +8,8 @@ open it from the menu, so use **Save As** to keep your changes.
 A project is a folder with:
 
 ```
-main.pd             the patch
-*.pd                abstractions it uses (found next to the patch)
+main.qd             the patch
+*.qd                abstractions it uses (found next to the patch)
 nodes/nodes.json    its own QML nodes – loaded before the patch opens
 nodes/*.qml
 ```
@@ -49,7 +49,7 @@ A monophonic synth whose oscillator plays a waveform you draw.
 
 ## Euclidean ambient
 
-Three rhythm rings play FM bells (`bell.pd`) in a pentatonic scale into a
+Three rhythm rings play FM bells (`bell.qd`) in a pentatonic scale into a
 stereo feedback delay. It starts running when opened, and you hear it once
 DSP is on.
 

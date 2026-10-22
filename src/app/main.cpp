@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     parser.addOption(delay);
     parser.addOption(interval_);
     parser.addOption(count);
-    parser.addPositionalArgument(QStringLiteral("patches"), QStringLiteral("Pd patches to open."), QStringLiteral("[file.pd...]"));
+    parser.addPositionalArgument(QStringLiteral("patches"), QStringLiteral("Patches to open (.qd, or .pd from Pd)."), QStringLiteral("[file.qd...]"));
     parser.process(app);
 
     qure::ui::Session session(nullptr, parser.isSet(noAudio) || qEnvironmentVariableIsSet("QURE_NO_AUDIO")

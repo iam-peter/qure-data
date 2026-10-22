@@ -1,7 +1,8 @@
 # Qure Data
 
 A reimplementation of [Pure Data](https://github.com/pure-data/pure-data) in
-C++23 with a Qt Quick interface. It opens and saves ordinary `.pd` files.
+C++23 with a Qt Quick interface. Its patches are `.qd` files in Pd's own
+format, so it opens Pd's `.pd` files too, and can save them back as `.pd`.
 
 * **Engine:** lock-free and allocation-free on the audio thread. Patch edits
   are compiled into immutable *plans* and swapped in atomically, so editing

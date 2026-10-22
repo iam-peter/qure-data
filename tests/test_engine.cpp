@@ -209,3 +209,24 @@ TEST_CASE("plans can be swapped while the engine runs", "[engine][threads]") {
     h.drain();
     SUCCEED("no crash or sanitizer report while swapping plans");
 }
+
+TEST_CASE("abstractions are found as .qd first, then .pd", "[engine]") {
+    Harness h;
+    const auto dir = std::filesystem::temp_directory_path() / "qure-ext-test";
+    std::filesystem::create_directories(dir);
+    auto write = [&](const char* file, const char* says) {
+        std::ofstream f(dir / file);
+        f << "#N canvas 0 0 300 200 12;\n#X obj 10 10 loadbang;\n#X msg 10 40 " << says
+          << ";\n#X obj 10 70 print;\n#X connect 0 0 1 0;\n#X connect 1 0 2 0;\n";
+    };
+    write("both.qd", "from-qd");
+    write("both.pd", "from-pd");
+    write("onlypd.pd", "pd-only");
+    auto r = h.rt.openPatchText("#N canvas 0 0 400 300 12;\n#X obj 10 10 both;\n#X obj 10 50 onlypd;\n",
+                                "main.qd", dir);
+    REQUIRE(r);
+    const auto lines = h.take();
+    CHECK(std::ranges::find(lines, "print: from-qd") != lines.end());
+    CHECK(std::ranges::find(lines, "print: pd-only") != lines.end());
+    CHECK(std::ranges::find(lines, "print: from-pd") == lines.end());
+}

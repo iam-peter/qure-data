@@ -82,13 +82,19 @@ void Runtime::loadbang(Canvas& canvas) {
 }
 
 std::filesystem::path Runtime::findAbstraction(const Canvas& from, std::string_view name) const {
-    const auto file = std::filesystem::path(std::string(name) + ".pd");
-    std::error_code ec;
+    // Qure Data's own extension first, then Pd's, in each directory.
+    auto lookIn = [&](const std::filesystem::path& dir) -> std::filesystem::path {
+        std::error_code ec;
+        for (const char* ext : {kPatchExtension, kPdExtension})
+            if (auto p = dir / (std::string(name) + ext); std::filesystem::is_regular_file(p, ec))
+                return p;
+        return {};
+    };
     if (auto dir = from.directory(); !dir.empty())
-        if (auto p = dir / file; std::filesystem::is_regular_file(p, ec))
+        if (auto p = lookIn(dir); !p.empty())
             return p;
     for (const auto& dir : searchPaths)
-        if (auto p = dir / file; std::filesystem::is_regular_file(p, ec))
+        if (auto p = lookIn(dir); !p.empty())
             return p;
     return {};
 }

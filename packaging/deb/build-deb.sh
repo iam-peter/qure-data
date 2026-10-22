@@ -33,6 +33,8 @@ cp -a "$appdir"/usr/lib/libQt6* "$appdir"/usr/lib/libicu* "$prefix/lib/"
 ln -s /opt/qure-data/bin/qure "$root/usr/bin/qure"
 install -Dm644 "$logo/qure.desktop" "$root/usr/share/applications/qure.desktop"
 install -Dm644 "$logo/qure.svg" "$root/usr/share/icons/hicolor/scalable/apps/qure.svg"
+# The .qd file type; shared-mime-info's trigger updates the database
+install -Dm644 "$logo/qure-data.xml" "$root/usr/share/mime/packages/qure-data.xml"
 chmod -R u+rwX,go+rX,go-w "$root"
 
 printf 'Source: qure-data\n\nPackage: qure-data\nArchitecture: amd64\n' > "$work/debian/control"

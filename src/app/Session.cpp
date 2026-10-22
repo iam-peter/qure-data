@@ -33,7 +33,7 @@ Session::Session(QObject* parent, Audio audio)
         postError(error);
     // User node packs and abstractions live next to each other:
     //   ~/.local/share/QureData/nodes/<pack>/nodes.json
-    //   ~/.local/share/QureData/abstractions/*.pd
+    //   ~/.local/share/QureData/abstractions/*.qd (or *.pd)
     const QString data = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     frontends_.loadDirectory(data + QStringLiteral("/nodes"));
     frontends_.registerEngineClasses(runtime_->registry());
@@ -172,7 +172,7 @@ static const QString kExampleDir = QStringLiteral(":/qt/qml/Qure/examples");
 
 static QString prettyName(QString name) {
     name.remove(QRegularExpression(QStringLiteral("^\\d+-")));
-    name.remove(QStringLiteral(".pd"));
+    name.remove(QRegularExpression(QStringLiteral("\\.(qd|pd)$")));
     name.replace(QLatin1Char('-'), QLatin1Char(' '));
     if (!name.isEmpty())
         name[0] = name[0].toUpper();
@@ -187,14 +187,14 @@ QVariantList Session::examples() const {
     const QDir root(kExampleDir);
     for (const auto& dir : root.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
         const QDir d(root.filePath(dir));
-        if (d.exists(QStringLiteral("main.pd"))) {
+        if (d.exists(QStringLiteral("main.qd"))) {
             // A project: one entry for its main patch.
             out << QVariantMap{{QStringLiteral("title"), prettyName(dir)},
-                               {QStringLiteral("path"), dir + QStringLiteral("/main.pd")},
+                               {QStringLiteral("path"), dir + QStringLiteral("/main.qd")},
                                {QStringLiteral("group"), QStringLiteral("projects")}};
             continue;
         }
-        for (const auto& f : d.entryList({QStringLiteral("*.pd")}, QDir::Files, QDir::Name))
+        for (const auto& f : d.entryList({QStringLiteral("*.qd")}, QDir::Files, QDir::Name))
             out << QVariantMap{{QStringLiteral("title"), prettyName(f)},
                                {QStringLiteral("path"), dir + QLatin1Char('/') + f},
                                {QStringLiteral("group"), dir}};

@@ -94,9 +94,9 @@ private slots:
     void opensCleanly_data() {
         QTest::addColumn<QString>("path");
         QTest::addColumn<int>("widgets");
-        QTest::newRow("drum machine") << QStringLiteral("drum-machine/main.pd") << 5;
-        QTest::newRow("wavetable synth") << QStringLiteral("wavetable-synth/main.pd") << 3;
-        QTest::newRow("euclidean ambient") << QStringLiteral("euclidean-ambient/main.pd") << 4;
+        QTest::newRow("drum machine") << QStringLiteral("drum-machine/main.qd") << 5;
+        QTest::newRow("wavetable synth") << QStringLiteral("wavetable-synth/main.qd") << 3;
+        QTest::newRow("euclidean ambient") << QStringLiteral("euclidean-ambient/main.qd") << 4;
     }
 
     void opensCleanly() {
@@ -122,7 +122,7 @@ private slots:
     }
 
     void stepGridClickChangesThePattern() {
-        open(QStringLiteral("drum-machine/main.pd"));
+        open(QStringLiteral("drum-machine/main.qd"));
         QTRY_VERIFY(view_->liveWidgets() > 0);
         Box* grid = boxOf("stepgrid");
         QVERIFY(grid);
@@ -134,7 +134,7 @@ private slots:
     }
 
     void waveEditorWritesTheArray() {
-        open(QStringLiteral("wavetable-synth/main.pd"));
+        open(QStringLiteral("wavetable-synth/main.qd"));
         QTRY_VERIFY(view_->liveWidgets() > 0);
         const QList<float> before = session_->readArray(QStringLiteral("wavetable"));
         QCOMPARE(before.size(), 35);
@@ -148,7 +148,7 @@ private slots:
     }
 
     void adsrHandleDragChangesAttack() {
-        open(QStringLiteral("wavetable-synth/main.pd"));
+        open(QStringLiteral("wavetable-synth/main.qd"));
         QTRY_VERIFY(view_->liveWidgets() > 0);
         Box* adsr = boxOf("adsr");
         QVERIFY(adsr);
@@ -161,7 +161,7 @@ private slots:
     }
 
     void euclidRingDragAddsHits() {
-        open(QStringLiteral("euclidean-ambient/main.pd"));
+        open(QStringLiteral("euclidean-ambient/main.qd"));
         QTRY_VERIFY(view_->liveWidgets() > 0);
         Box* ring = boxOf("euclid");
         QVERIFY(ring);

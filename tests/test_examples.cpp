@@ -67,7 +67,7 @@ void requireNothingBroken(const Canvas& c) {
 Canvas& openProject(Harness& h, const char* name) {
     const auto dir = kExamples / name;
     registerNodePack(h.rt, dir);
-    auto r = h.rt.openPatch(dir / "main.pd");
+    auto r = h.rt.openPatch(dir / "main.qd");
     REQUIRE(r.has_value());
     INFO("compile warnings: " << h.rt.compileWarnings().size());
     CHECK(h.rt.compileWarnings().empty());
@@ -192,10 +192,10 @@ TEST_CASE("example patches round-trip through the writer", "[examples]") {
         Harness h;
         const auto dir = kExamples / name;
         registerNodePack(h.rt, dir);
-        std::ifstream in(dir / "main.pd");
+        std::ifstream in(dir / "main.qd");
         std::stringstream ss;
         ss << in.rdbuf();
-        auto r = h.rt.openPatch(dir / "main.pd");
+        auto r = h.rt.openPatch(dir / "main.qd");
         REQUIRE(r.has_value());
         INFO(name);
         CHECK(writePatch(**r) == ss.str());
