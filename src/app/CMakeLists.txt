@@ -5,6 +5,7 @@ qt_add_library(qure_gui STATIC
     CanvasLayer.cpp
     CanvasView.cpp CanvasView.hpp
     ConsoleModel.cpp ConsoleModel.hpp
+    Fonts.cpp Fonts.hpp
     FrontendRegistry.cpp FrontendRegistry.hpp
     NodeHandle.cpp NodeHandle.hpp
     PatchDocument.cpp PatchDocument.hpp
@@ -21,7 +22,7 @@ file(GLOB QURE_QML RELATIVE ${QML_DIR} CONFIGURE_DEPENDS
     ${QML_DIR}/*.qml ${QML_DIR}/nodes/*.qml ${QML_DIR}/nodes/*.js ${QML_DIR}/visuals/*.qml)
 # Built-in effects for [gfx.shader name], compiled at runtime like users'.
 file(GLOB QURE_QML_RESOURCES RELATIVE ${QML_DIR} CONFIGURE_DEPENDS
-    ${QML_DIR}/nodes/*.json ${QML_DIR}/visuals/effects/*.frag)
+    ${QML_DIR}/nodes/*.json ${QML_DIR}/visuals/effects/*.frag ${QML_DIR}/icons/*.svg)
 foreach(f IN LISTS QURE_QML QURE_QML_RESOURCES)
     set_source_files_properties(${QML_DIR}/${f} PROPERTIES QT_RESOURCE_ALIAS ${f})
 endforeach()
@@ -52,6 +53,14 @@ qt_add_shaders(qure_gui "qure_shaders"
     FILES
         shaders/box.vert shaders/box.frag
         shaders/cord.vert shaders/cord.frag
+)
+
+# Inter and JetBrains Mono, registered by loadFonts().
+qt_add_resources(qure_gui "qure_fonts"
+    PREFIX "/qure"
+    FILES
+        fonts/Inter-Regular.ttf fonts/Inter-SemiBold.ttf fonts/Inter-Bold.ttf
+        fonts/JetBrainsMono-Regular.ttf fonts/JetBrainsMono-Bold.ttf
 )
 
 target_include_directories(qure_gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

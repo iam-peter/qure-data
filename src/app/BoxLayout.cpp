@@ -1,5 +1,6 @@
 #include "BoxLayout.hpp"
 
+#include "Fonts.hpp"
 #include "FrontendRegistry.hpp"
 #include "Patch.hpp"
 
@@ -16,7 +17,8 @@ namespace qure::ui::layout {
 
 const QFont& font() {
     static const QFont f = [] {
-        QFont font(QStringLiteral("DejaVu Sans Mono"));
+        loadFonts();
+        QFont font(kMonoFamily);
         font.setStyleHint(QFont::Monospace);
         font.setFixedPitch(true);
         if (!QFontInfo(font).fixedPitch())

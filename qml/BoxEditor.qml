@@ -52,7 +52,7 @@ Item {
         color: Qure.theme.text
         selectionColor: Qure.theme.selection
         selectedTextColor: "white"
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         font.pixelSize: Math.max(6, 12 * root.view.zoom)
         leftPadding: 4 * root.view.zoom
         topPadding: 3 * root.view.zoom
@@ -138,7 +138,7 @@ Item {
                 spacing: 8
                 Text {
                     text: modelData
-                    font.family: "DejaVu Sans Mono"
+                    font.family: "JetBrains Mono"
                     font.pixelSize: 12
                     color: Qure.theme.text
                 }

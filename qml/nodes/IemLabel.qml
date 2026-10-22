@@ -15,6 +15,6 @@ Text {
     x: Iem.num(dx, 0)
     y: Iem.num(dy, 0) - height / 2
     font.pixelSize: Math.max(6, Iem.num(size, 10))
-    font.family: "DejaVu Sans Mono"
+    font.family: "JetBrains Mono"
     color: Iem.color(colorArg, Qure.theme.text, ["#000000"])
 }

@@ -69,43 +69,53 @@ ApplicationWindow {
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
-            Action { text: qsTr("&New Patch"); shortcut: StandardKey.New; onTriggered: main.newPatch() }
-            Action { text: qsTr("&Open…"); shortcut: StandardKey.Open; onTriggered: openDialog.open() }
+            IconAction { iconName: "file-plus"; text: qsTr("&New Patch"); shortcut: StandardKey.New; onTriggered: main.newPatch() }
+            IconAction { iconName: "folder-open"; text: qsTr("&Open…"); shortcut: StandardKey.Open; onTriggered: openDialog.open() }
             Menu {
                 title: qsTr("&Examples")
+                icon.source: "icons/book-open.svg"
+                icon.color: palette.windowText
                 // Projects: a folder with main.qd, its own QML nodes and abstractions.
                 Repeater {
                     model: Qure.examples.filter(e => e.group === "projects")
                     MenuItem {
                         required property var modelData
                         text: modelData.title
+                        icon.source: "icons/folder.svg"
+                        icon.color: palette.windowText
                         onTriggered: main.openExample(modelData.path)
                     }
                 }
                 MenuSeparator {}
                 Menu {
                     title: qsTr("&Basics")
+                    icon.source: "icons/graduation-cap.svg"
+                    icon.color: palette.windowText
                     Repeater {
                         model: Qure.examples.filter(e => e.group === "basics")
                         MenuItem {
                             required property var modelData
                             text: modelData.title
+                            icon.source: "icons/file.svg"
+                            icon.color: palette.windowText
                             onTriggered: main.openExample(modelData.path)
                         }
                     }
                 }
             }
             MenuSeparator {}
-            Action { text: qsTr("&Quit"); shortcut: StandardKey.Quit; onTriggered: Qt.quit() }
+            IconAction { iconName: "log-out"; text: qsTr("&Quit"); shortcut: StandardKey.Quit; onTriggered: Qt.quit() }
         }
         Menu {
             title: qsTr("&Media")
-            Action { text: qsTr("DSP &On"); shortcut: "Ctrl+/"; onTriggered: Qure.dsp = true }
-            Action { text: qsTr("DSP O&ff"); shortcut: "Ctrl+."; onTriggered: Qure.dsp = false }
+            IconAction { iconName: "power"; text: qsTr("DSP &On"); shortcut: "Ctrl+/"; onTriggered: Qure.dsp = true }
+            IconAction { iconName: "power-off"; text: qsTr("DSP O&ff"); shortcut: "Ctrl+."; onTriggered: Qure.dsp = false }
             MenuSeparator {}
             Menu {
                 id: outputMenu
                 title: qsTr("Audio &Output")
+                icon.source: "icons/audio-lines.svg"
+                icon.color: palette.windowText
                 Repeater {
                     model: Qure.playbackDevices
                     MenuItem {
@@ -116,13 +126,13 @@ ApplicationWindow {
                     }
                 }
             }
-            Action { text: qsTr("Default Audio Device"); onTriggered: Qure.restartAudio(-1, -1) }
-            Action { text: qsTr("Rescan Devices"); onTriggered: Qure.refreshDevices() }
+            IconAction { iconName: "speaker"; text: qsTr("Default Audio Device"); onTriggered: Qure.restartAudio(-1, -1) }
+            IconAction { iconName: "refresh-cw"; text: qsTr("Rescan Devices"); onTriggered: Qure.refreshDevices() }
         }
         Menu {
             title: qsTr("&View")
-            Action { text: qsTr("&Dark Theme"); checkable: true; checked: Qure.darkTheme; onTriggered: Qure.darkTheme = checked }
-            Action { text: qsTr("&Clear Console"); shortcut: "Ctrl+Shift+L"; onTriggered: Qure.console.clear() }
+            IconAction { iconName: "moon"; text: qsTr("&Dark Theme"); checkable: true; checked: Qure.darkTheme; onTriggered: Qure.darkTheme = checked }
+            IconAction { iconName: "eraser"; text: qsTr("&Clear Console"); shortcut: "Ctrl+Shift+L"; onTriggered: Qure.console.clear() }
         }
     }
 
@@ -148,8 +158,8 @@ ApplicationWindow {
                 elide: Text.ElideMiddle
                 opacity: 0.7
             }
-            ToolButton { text: qsTr("New"); onClicked: main.newPatch() }
-            ToolButton { text: qsTr("Open"); onClicked: openDialog.open() }
+            ToolButton { action: IconAction { iconName: "file-plus"; text: qsTr("New"); onTriggered: main.newPatch() } }
+            ToolButton { action: IconAction { iconName: "folder-open"; text: qsTr("Open"); onTriggered: openDialog.open() } }
         }
     }
 
@@ -174,7 +184,7 @@ ApplicationWindow {
                 rightPadding: 8
                 text: model.text
                 wrapMode: Text.Wrap
-                font.family: "DejaVu Sans Mono"
+                font.family: "JetBrains Mono"
                 font.pixelSize: 12
                 textFormat: Text.PlainText
                 color: level === 0 ? "#d03a3a" : level === 1 ? "#c88a12" : Qure.theme.text
@@ -184,11 +194,11 @@ ApplicationWindow {
         RowLayout {
             Layout.fillWidth: true
             Layout.margins: 6
-            Label { text: ";" ; font.family: "DejaVu Sans Mono" }
+            Label { text: ";" ; font.family: "JetBrains Mono" }
             TextField {
                 id: messageField
                 Layout.fillWidth: true
-                font.family: "DejaVu Sans Mono"
+                font.family: "JetBrains Mono"
                 placeholderText: qsTr("send a message, e.g.  pd dsp 1")
                 onAccepted: {
                     Qure.sendMessage(text)

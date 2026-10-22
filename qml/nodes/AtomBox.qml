@@ -28,7 +28,7 @@ Item {
         leftPadding: 4
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         font.pixelSize: 12
         color: Qure.theme.text
         text: {
@@ -43,7 +43,7 @@ Item {
         visible: false
         leftPadding: 4
         verticalAlignment: Text.AlignVCenter
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         font.pixelSize: 12
         color: Qure.theme.selection
         onAccepted: {
@@ -70,7 +70,7 @@ Item {
     Text {
         visible: root.labelText.length > 0
         text: root.labelText
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         font.pixelSize: 12
         color: Qure.theme.text
         readonly property int where: Iem.num(root.a[3], 0)

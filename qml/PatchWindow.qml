@@ -77,76 +77,79 @@ ApplicationWindow {
     menuBar: MenuBar {
         Menu {
             title: qsTr("&File")
-            Action { text: qsTr("&Save"); shortcut: StandardKey.Save; onTriggered: win.save() }
-            Action { text: qsTr("Save &As…"); shortcut: StandardKey.SaveAs; onTriggered: saveDialog.open() }
+            IconAction { iconName: "save"; text: qsTr("&Save"); shortcut: StandardKey.Save; onTriggered: win.save() }
+            IconAction { iconName: "save-all"; text: qsTr("Save &As…"); shortcut: StandardKey.SaveAs; onTriggered: saveDialog.open() }
             MenuSeparator {}
-            Action { text: qsTr("&Close"); shortcut: StandardKey.Close; onTriggered: win.close() }
+            IconAction { iconName: "x"; text: qsTr("&Close"); shortcut: StandardKey.Close; onTriggered: win.close() }
         }
         Menu {
             title: qsTr("&Edit")
-            Action {
+            IconAction {
+                iconName: "undo-2"
                 text: qsTr("&Undo %1").arg(win.doc ? win.doc.undoText : "")
                 enabled: win.doc && win.doc.canUndo
                 shortcut: StandardKey.Undo
                 onTriggered: win.doc.undo()
             }
-            Action {
+            IconAction {
+                iconName: "redo-2"
                 text: qsTr("&Redo %1").arg(win.doc ? win.doc.redoText : "")
                 enabled: win.doc && win.doc.canRedo
                 shortcut: StandardKey.Redo
                 onTriggered: win.doc.redo()
             }
             MenuSeparator {}
-            Action { text: qsTr("Cu&t"); shortcut: StandardKey.Cut; onTriggered: view.cutSelection() }
-            Action { text: qsTr("&Copy"); shortcut: StandardKey.Copy; onTriggered: view.copySelection() }
-            Action { text: qsTr("&Paste"); shortcut: StandardKey.Paste; onTriggered: view.paste() }
-            Action { text: qsTr("&Duplicate"); shortcut: "Ctrl+D"; onTriggered: view.duplicateSelection() }
-            Action { text: qsTr("Select &All"); shortcut: StandardKey.SelectAll; onTriggered: view.selectAll() }
+            IconAction { iconName: "scissors"; text: qsTr("Cu&t"); shortcut: StandardKey.Cut; onTriggered: view.cutSelection() }
+            IconAction { iconName: "copy"; text: qsTr("&Copy"); shortcut: StandardKey.Copy; onTriggered: view.copySelection() }
+            IconAction { iconName: "clipboard-paste"; text: qsTr("&Paste"); shortcut: StandardKey.Paste; onTriggered: view.paste() }
+            IconAction { iconName: "copy-plus"; text: qsTr("&Duplicate"); shortcut: "Ctrl+D"; onTriggered: view.duplicateSelection() }
+            IconAction { iconName: "square-dashed"; text: qsTr("Select &All"); shortcut: StandardKey.SelectAll; onTriggered: view.selectAll() }
             MenuSeparator {}
-            Action {
+            IconAction {
+                iconName: "pencil"
                 text: qsTr("&Edit Mode")
                 checkable: true
                 checked: view.editMode
                 shortcut: "Ctrl+E"
                 onTriggered: view.editMode = !view.editMode
             }
-            Action { text: qsTr("&Open Subpatch"); shortcut: "Ctrl+Return"; onTriggered: view.openSelected() }
+            IconAction { iconName: "square-arrow-out-up-right"; text: qsTr("&Open Subpatch"); shortcut: "Ctrl+Return"; onTriggered: view.openSelected() }
         }
         Menu {
             title: qsTr("&Put")
-            Action { text: qsTr("&Object"); shortcut: "Ctrl+1"; onTriggered: view.placeBox("object") }
-            Action { text: qsTr("&Message"); shortcut: "Ctrl+2"; onTriggered: view.placeBox("message") }
-            Action { text: qsTr("&Number"); shortcut: "Ctrl+3"; onTriggered: view.placeBox("floatatom") }
-            Action { text: qsTr("&Symbol"); shortcut: "Ctrl+4"; onTriggered: view.placeBox("symbolatom") }
-            Action { text: qsTr("&List"); shortcut: "Ctrl+9"; onTriggered: view.placeBox("listbox") }
-            Action { text: qsTr("&Comment"); shortcut: "Ctrl+5"; onTriggered: view.placeBox("comment", "comment") }
+            IconAction { iconName: "square"; text: qsTr("&Object"); shortcut: "Ctrl+1"; onTriggered: view.placeBox("object") }
+            IconAction { iconName: "message-square"; text: qsTr("&Message"); shortcut: "Ctrl+2"; onTriggered: view.placeBox("message") }
+            IconAction { iconName: "hash"; text: qsTr("&Number"); shortcut: "Ctrl+3"; onTriggered: view.placeBox("floatatom") }
+            IconAction { iconName: "type"; text: qsTr("&Symbol"); shortcut: "Ctrl+4"; onTriggered: view.placeBox("symbolatom") }
+            IconAction { iconName: "list"; text: qsTr("&List"); shortcut: "Ctrl+9"; onTriggered: view.placeBox("listbox") }
+            IconAction { iconName: "sticky-note"; text: qsTr("&Comment"); shortcut: "Ctrl+5"; onTriggered: view.placeBox("comment", "comment") }
             MenuSeparator {}
-            Action { text: qsTr("&Bang"); shortcut: "Ctrl+Shift+B"; onTriggered: view.placeBox("object", "bng 19 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000", true) }
-            Action { text: qsTr("&Toggle"); shortcut: "Ctrl+Shift+T"; onTriggered: view.placeBox("object", "tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1", true) }
-            Action { text: qsTr("Number &2"); shortcut: "Ctrl+Shift+N"; onTriggered: view.placeBox("object", "nbx 5 17 -1e+37 1e+37 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 256", true) }
-            Action { text: qsTr("&Hslider"); shortcut: "Ctrl+Shift+J"; onTriggered: view.placeBox("object", "hsl 128 17 0 127 0 0 empty empty empty -2 -10 0 12 #fcfcfc #000000 #000000 0 1", true) }
-            Action { text: qsTr("&Vslider"); shortcut: "Ctrl+Shift+V"; onTriggered: view.placeBox("object", "vsl 17 128 0 127 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 1", true) }
-            Action { text: qsTr("&Knob"); shortcut: "Ctrl+Shift+K"; onTriggered: view.placeBox("object", "knob 50 0 127 0 empty empty", true) }
-            Action { text: qsTr("Hra&dio"); shortcut: "Ctrl+Shift+D"; onTriggered: view.placeBox("object", "hradio 18 1 0 8 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0", true) }
-            Action { text: qsTr("Vrad&io"); shortcut: "Ctrl+Shift+I"; onTriggered: view.placeBox("object", "vradio 18 1 0 8 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0", true) }
-            Action { text: qsTr("V&U Meter"); shortcut: "Ctrl+Shift+U"; onTriggered: view.placeBox("object", "vu 18 160 empty empty -1 -10 0 12 #404040 #000000 1 0", true) }
-            Action { text: qsTr("C&anvas"); shortcut: "Ctrl+Shift+C"; onTriggered: view.placeBox("object", "cnv 15 100 60 empty empty empty 20 12 0 14 #e0e0e0 #404040 0", true) }
+            IconAction { iconName: "circle-dot"; text: qsTr("&Bang"); shortcut: "Ctrl+Shift+B"; onTriggered: view.placeBox("object", "bng 19 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000", true) }
+            IconAction { iconName: "square-check"; text: qsTr("&Toggle"); shortcut: "Ctrl+Shift+T"; onTriggered: view.placeBox("object", "tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1", true) }
+            IconAction { iconName: "calculator"; text: qsTr("Number &2"); shortcut: "Ctrl+Shift+N"; onTriggered: view.placeBox("object", "nbx 5 17 -1e+37 1e+37 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 256", true) }
+            IconAction { iconName: "sliders-horizontal"; text: qsTr("&Hslider"); shortcut: "Ctrl+Shift+J"; onTriggered: view.placeBox("object", "hsl 128 17 0 127 0 0 empty empty empty -2 -10 0 12 #fcfcfc #000000 #000000 0 1", true) }
+            IconAction { iconName: "sliders-vertical"; text: qsTr("&Vslider"); shortcut: "Ctrl+Shift+V"; onTriggered: view.placeBox("object", "vsl 17 128 0 127 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 1", true) }
+            IconAction { iconName: "circle-gauge"; text: qsTr("&Knob"); shortcut: "Ctrl+Shift+K"; onTriggered: view.placeBox("object", "knob 50 0 127 0 empty empty", true) }
+            IconAction { iconName: "ellipsis"; text: qsTr("Hra&dio"); shortcut: "Ctrl+Shift+D"; onTriggered: view.placeBox("object", "hradio 18 1 0 8 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0", true) }
+            IconAction { iconName: "ellipsis-vertical"; text: qsTr("Vrad&io"); shortcut: "Ctrl+Shift+I"; onTriggered: view.placeBox("object", "vradio 18 1 0 8 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0", true) }
+            IconAction { iconName: "chart-column"; text: qsTr("V&U Meter"); shortcut: "Ctrl+Shift+U"; onTriggered: view.placeBox("object", "vu 18 160 empty empty -1 -10 0 12 #404040 #000000 1 0", true) }
+            IconAction { iconName: "rectangle-horizontal"; text: qsTr("C&anvas"); shortcut: "Ctrl+Shift+C"; onTriggered: view.placeBox("object", "cnv 15 100 60 empty empty empty 20 12 0 14 #e0e0e0 #404040 0", true) }
             MenuSeparator {}
-            Action { text: qsTr("Piano &Keyboard"); onTriggered: view.placeBox("object", "kbd 3 48", true) }
-            Action { text: qsTr("&XY Pad"); onTriggered: view.placeBox("object", "xypad 120", true) }
-            Action { text: qsTr("Sco&pe~"); onTriggered: view.placeBox("object", "scope~ 512", true) }
+            IconAction { iconName: "piano"; text: qsTr("Piano &Keyboard"); onTriggered: view.placeBox("object", "kbd 3 48", true) }
+            IconAction { iconName: "crosshair"; text: qsTr("&XY Pad"); onTriggered: view.placeBox("object", "xypad 120", true) }
+            IconAction { iconName: "activity"; text: qsTr("Sco&pe~"); onTriggered: view.placeBox("object", "scope~ 512", true) }
         }
         Menu {
             title: qsTr("&View")
-            Action { text: qsTr("Zoom &In"); shortcut: StandardKey.ZoomIn; onTriggered: view.zoomBy(1.25) }
-            Action { text: qsTr("Zoom &Out"); shortcut: StandardKey.ZoomOut; onTriggered: view.zoomBy(0.8) }
-            Action { text: qsTr("&Actual Size"); shortcut: "Ctrl+0"; onTriggered: view.resetZoom() }
-            Action { text: qsTr("&Fit Patch"); shortcut: "Ctrl+Shift+F"; onTriggered: view.fitToView() }
+            IconAction { iconName: "zoom-in"; text: qsTr("Zoom &In"); shortcut: StandardKey.ZoomIn; onTriggered: view.zoomBy(1.25) }
+            IconAction { iconName: "zoom-out"; text: qsTr("Zoom &Out"); shortcut: StandardKey.ZoomOut; onTriggered: view.zoomBy(0.8) }
+            IconAction { iconName: "scan"; text: qsTr("&Actual Size"); shortcut: "Ctrl+0"; onTriggered: view.resetZoom() }
+            IconAction { iconName: "maximize"; text: qsTr("&Fit Patch"); shortcut: "Ctrl+Shift+F"; onTriggered: view.fitToView() }
         }
         Menu {
             title: qsTr("&Media")
-            Action { text: qsTr("DSP &On"); shortcut: "Ctrl+/"; onTriggered: Qure.dsp = true }
-            Action { text: qsTr("DSP O&ff"); shortcut: "Ctrl+."; onTriggered: Qure.dsp = false }
+            IconAction { iconName: "power"; text: qsTr("DSP &On"); shortcut: "Ctrl+/"; onTriggered: Qure.dsp = true }
+            IconAction { iconName: "power-off"; text: qsTr("DSP O&ff"); shortcut: "Ctrl+."; onTriggered: Qure.dsp = false }
         }
     }
 
@@ -188,13 +191,13 @@ ApplicationWindow {
     Menu {
         id: contextMenu
         property bool onBox: false
-        MenuItem { text: qsTr("Open"); enabled: contextMenu.onBox; onTriggered: view.openSelected() }
+        IconAction { iconName: "square-arrow-out-up-right"; text: qsTr("Open"); enabled: contextMenu.onBox; onTriggered: view.openSelected() }
         MenuSeparator {}
-        MenuItem { text: qsTr("Cut"); enabled: contextMenu.onBox; onTriggered: view.cutSelection() }
-        MenuItem { text: qsTr("Copy"); enabled: contextMenu.onBox; onTriggered: view.copySelection() }
-        MenuItem { text: qsTr("Paste"); onTriggered: view.paste() }
-        MenuItem { text: qsTr("Duplicate"); enabled: contextMenu.onBox; onTriggered: view.duplicateSelection() }
-        MenuItem { text: qsTr("Delete"); enabled: contextMenu.onBox; onTriggered: view.deleteSelection() }
+        IconAction { iconName: "scissors"; text: qsTr("Cut"); enabled: contextMenu.onBox; onTriggered: view.cutSelection() }
+        IconAction { iconName: "copy"; text: qsTr("Copy"); enabled: contextMenu.onBox; onTriggered: view.copySelection() }
+        IconAction { iconName: "clipboard-paste"; text: qsTr("Paste"); onTriggered: view.paste() }
+        IconAction { iconName: "copy-plus"; text: qsTr("Duplicate"); enabled: contextMenu.onBox; onTriggered: view.duplicateSelection() }
+        IconAction { iconName: "trash-2"; text: qsTr("Delete"); enabled: contextMenu.onBox; onTriggered: view.deleteSelection() }
     }
 
     footer: ToolBar {
@@ -203,6 +206,11 @@ ApplicationWindow {
             anchors.leftMargin: 8
             anchors.rightMargin: 8
             spacing: 14
+            Icon {
+                name: view.editMode ? "pencil" : "play"
+                color: view.editMode ? Qure.theme.selection : palette.text
+                Layout.rightMargin: -8
+            }
             Label {
                 text: view.editMode ? qsTr("EDIT") : qsTr("RUN")
                 font.bold: true
@@ -217,6 +225,11 @@ ApplicationWindow {
             Label { text: qsTr("%1 boxes").arg(view.boxCount); opacity: 0.6 }
             Label { text: qsTr("%1 widgets").arg(view.liveWidgets); opacity: 0.6 }
             Label { text: Math.round(view.zoom * 100) + "%"; opacity: 0.6 }
+            Icon {
+                name: "audio-lines"
+                color: Qure.dsp ? "#2a9d4b" : palette.text
+                Layout.rightMargin: -8
+            }
             Label { text: Qure.dsp ? qsTr("DSP on") : qsTr("DSP off"); color: Qure.dsp ? "#2a9d4b" : palette.text }
         }
     }

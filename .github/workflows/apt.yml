@@ -63,6 +63,7 @@ jobs:
             docs/screenshots/wavetable-synth.png docs/screenshots/euclidean-ambient.png \
             docs/screenshots/audio-visuals.png docs/screenshots/vj-mixer.png \
             docs/screenshots/vj-mixer-patch.png site/
+          cp -r pages/fonts site/
 
       - name: Repository
         env:

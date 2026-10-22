@@ -170,3 +170,10 @@ The packaging scripts are in `packaging/deb/`.
   QML.
 * [docs/VISUALS.md](docs/VISUALS.md): the visuals module, writing effects
   and scenes.
+
+## Credits
+
+The interface is set in [Inter](https://rsms.me/inter/), boxes and code in
+[JetBrains Mono](https://www.jetbrains.com/lp/mono/) – both under the SIL
+Open Font License, bundled in `src/app/fonts/`. The icons are
+[Lucide](https://lucide.dev/) (ISC license), in `qml/icons/`.

@@ -10,7 +10,7 @@
 #X obj 760 205 s amb-tick;
 #X obj 760 245 array define amb-scale 5;
 #X msg 760 275 \; amb-scale 0 0 2 4 7 9;
-#X text 760 305 a pentatonic scale, f 20;
+#X text 760 316 a pentatonic scale, f 20;
 #X obj 30 75 euclid 16 5 0 20;
 #X obj 30 215 unpack f f f;
 #X obj 30 245 r amb-tick;

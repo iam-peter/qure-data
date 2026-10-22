@@ -1,7 +1,9 @@
+#include "Fonts.hpp"
 #include "PatchDocument.hpp"
 #include "Session.hpp"
 
 #include <QCommandLineParser>
+#include <QFont>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QQmlApplicationEngine>
@@ -24,6 +26,11 @@ int main(int argc, char* argv[]) {
     QGuiApplication::setOrganizationName(QStringLiteral("QureData"));
     QGuiApplication::setApplicationVersion(QStringLiteral(QURE_VERSION));
     QQuickStyle::setStyle(QStringLiteral("Fusion"));
+    if (qure::ui::loadFonts()) {
+        QFont font(qure::ui::kSansFamily);
+        font.setPointSizeF(QGuiApplication::font().pointSizeF());
+        QGuiApplication::setFont(font);
+    }
     // Distance-field text scales cleanly when the canvas zooms.
     QQuickWindow::setTextRenderType(QQuickWindow::QtTextRendering);
 

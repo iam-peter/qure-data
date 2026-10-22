@@ -27,7 +27,7 @@ Item {
         x: 3
         y: 2
         text: root.info.array || ""
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         font.pixelSize: 11
         color: Qure.theme.commentText
     }

@@ -134,7 +134,7 @@ Item {
                 required property var modelData
                 text: modelData[0] + " " + modelData[1]
                 font.pixelSize: 10
-                font.family: "DejaVu Sans Mono"
+                font.family: "JetBrains Mono"
                 color: Qure.theme.commentText
             }
         }

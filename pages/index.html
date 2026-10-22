@@ -7,6 +7,16 @@
 <meta name="description" content="Visual programming for audio, compatible with Pure Data patches: a lock-free C++23 engine, a GPU-drawn patch editor and GUI nodes written in QML.">
 <link rel="icon" href="qure.svg" type="image/svg+xml">
 <style>
+  /* Inter and JetBrains Mono (SIL Open Font License, see fonts/), served
+     from here. Icons are Lucide (lucide.dev, ISC license), inlined. */
+  @font-face {
+    font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+    src: url("fonts/InterVariable.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap;
+    src: url("fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  }
   :root {
     --bg: #f7f9fb;
     --fg: #151b24;
@@ -35,7 +45,8 @@
     margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+    font: 16px/1.6 "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+    font-feature-settings: "cv11", "ss01";
   }
   a { color: var(--accent); }
   main { max-width: 920px; margin: 0 auto; padding: 0 16px 64px; }
@@ -46,8 +57,12 @@
   .tagline { color: var(--muted); font-size: 1.15rem; max-width: 640px; margin: 0 auto 28px; }
 
   .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .icon {
+    width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
   .button {
-    display: inline-block; padding: 10px 20px; border-radius: 10px;
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 10px;
     font-weight: 600; text-decoration: none; border: 1px solid var(--border);
     color: var(--fg); background: var(--card);
   }
@@ -71,10 +86,11 @@
     background: var(--card); color: var(--muted);
   }
   .channels button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
-  .copy { border: 1px solid var(--border) !important; border-radius: 8px; color: var(--fg) !important; }
+  .copy { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border) !important; border-radius: 8px; color: var(--fg) !important; }
 
   .code { background: var(--code-bg); color: var(--code-fg); border-radius: 10px; }
-  .code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font: 13.5px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font: 13.5px/1.55 "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; }
 
   .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0 8px; }
   .gallery figure { margin: 0; }
@@ -86,8 +102,9 @@
   .gallery figcaption { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
   @media (max-width: 640px) { .gallery { grid-template-columns: 1fr; } }
 
-  ul.features { padding-left: 20px; }
-  ul.features li { margin: 6px 0; }
+  ul.features { padding: 0; list-style: none; }
+  ul.features li { display: flex; gap: 12px; margin: 10px 0; }
+  ul.features .icon { width: 20px; height: 20px; margin-top: 3px; color: var(--accent); }
   footer { text-align: center; color: var(--muted); font-size: 0.9rem; padding-top: 48px; }
 </style>
 </head>
@@ -100,9 +117,9 @@
       a C++23 engine that never locks the audio thread, a patch editor drawn on
       the GPU, and GUI nodes you write in QML.</p>
     <div class="buttons">
-      <a class="button primary" href="https://github.com/iam-peter/qure-data/releases/latest">Download</a>
-      <a class="button" href="https://github.com/iam-peter/qure-data/releases/tag/nightly">Nightly</a>
-      <a class="button" href="https://github.com/iam-peter/qure-data">Source on GitHub</a>
+      <a class="button primary" href="https://github.com/iam-peter/qure-data/releases/latest"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <path d="m7 10 5 5 5-5" /></svg>Download</a>
+      <a class="button" href="https://github.com/iam-peter/qure-data/releases/tag/nightly"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" /> <path d="M6.453 15h11.094" /> <path d="M8.5 2h7" /></svg>Nightly</a>
+      <a class="button" href="https://github.com/iam-peter/qure-data"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 18 6-6-6-6" /> <path d="m8 6-6 6 6 6" /></svg>Source on GitHub</a>
     </div>
   </header>
 
@@ -111,12 +128,12 @@
 
   <h2>What it does</h2>
   <ul class="features">
-    <li>Saves patches as <code>.qd</code> files in Pd&rsquo;s own format and opens Pd&rsquo;s <code>.pd</code> files &ndash; subpatches, abstractions with <code>$0</code> and arguments, arrays, GUI objects &ndash; with about 175 objects of Pd vanilla, from <code>osc~</code> and <code>vline~</code> to <code>expr</code>.</li>
-    <li>Edits are compiled into a plan and swapped in between two audio blocks: changing a patch never blocks or clicks the sound. Subpatch inlets and outlets cost nothing at run time, and signal buffers are reused.</li>
-    <li>Boxes and cords are drawn by shaders in a few batched draw calls, so even huge patches pan and zoom smoothly. Pd&rsquo;s keys work: Ctrl+1 for an object, autopatching, drag from an outlet to connect.</li>
-    <li>Every GUI node &ndash; slider, toggle, keyboard, scope &ndash; is one QML file. A project can bring its own nodes in a <code>nodes/</code> folder next to the patch, without compiling anything.</li>
-    <li>Real-time visuals like Jitter or GEM: shaders written as one GLSL function and edited while the patch runs, whole QML scenes as layers, video feedback, and sound as textures &ndash; all on the GPU.</li>
-    <li>Audio through PipeWire, PulseAudio, JACK or ALSA on Linux, Core Audio on macOS and WASAPI on Windows.</li>
+    <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 12.5 8 15l2 2.5" /> <path d="m14 12.5 2 2.5-2 2.5" /></svg><span>Saves patches as <code>.qd</code> files in Pd&rsquo;s own format and opens Pd&rsquo;s <code>.pd</code> files &ndash; subpatches, abstractions with <code>$0</code> and arguments, arrays, GUI objects &ndash; with about 175 objects of Pd vanilla, from <code>osc~</code> and <code>vline~</code> to <code>expr</code>.</span></li>
+    <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" /></svg><span>Edits are compiled into a plan and swapped in between two audio blocks: changing a patch never blocks or clicks the sound. Subpatch inlets and outlets cost nothing at run time, and signal buffers are reused.</span></li>
+    <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg><span>Boxes and cords are drawn by shaders in a few batched draw calls, so even huge patches pan and zoom smoothly. Pd&rsquo;s keys work: Ctrl+1 for an object, autopatching, drag from an outlet to connect.</span></li>
+    <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H3" /> <path d="M12 19H3" /> <path d="M14 3v4" /> <path d="M16 17v4" /> <path d="M21 12h-9" /> <path d="M21 19h-5" /> <path d="M21 5h-7" /> <path d="M8 10v4" /> <path d="M8 12H3" /></svg><span>Every GUI node &ndash; slider, toggle, keyboard, scope &ndash; is one QML file. A project can bring its own nodes in a <code>nodes/</code> folder next to the patch, without compiling anything.</span></li>
+    <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></svg><span>Real-time visuals like Jitter or GEM: shaders written as one GLSL function and edited while the patch runs, whole QML scenes as layers, video feedback, and sound as textures &ndash; all on the GPU.</span></li>
+    <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 10v3" /> <path d="M6 6v11" /> <path d="M10 3v18" /> <path d="M14 8v7" /> <path d="M18 5v13" /> <path d="M22 10v3" /></svg><span>Audio through PipeWire, PulseAudio, JACK or ALSA on Linux, Core Audio on macOS and WASAPI on Windows.</span></li>
   </ul>
 
   <div class="gallery">
@@ -158,7 +175,7 @@
       <button type="button" data-channel="stable" aria-pressed="true">Stable</button>
       <button type="button" data-channel="nightly" aria-pressed="false">Nightly</button>
     </div>
-    <button type="button" class="copy" data-copy="apt">Copy</button>
+    <button type="button" class="copy" data-copy="apt"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /> <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg><span>Copy</span></button>
   </div>
   <div class="code"><pre id="apt">sudo curl -fsSLo /usr/share/keyrings/qure-data-archive-keyring.asc https://iam-peter.github.io/qure-data/key.asc
 echo "deb [signed-by=/usr/share/keyrings/qure-data-archive-keyring.asc] https://iam-peter.github.io/qure-data/apt <span id="channel">stable</span> main" | sudo tee /etc/apt/sources.list.d/qure-data.list
@@ -185,14 +202,15 @@ sudo apt update &amp;&amp; sudo apt install qure-data</pre></div>
     });
   }
   for (const button of document.querySelectorAll("[data-copy]")) {
+    const label = button.querySelector("span");
     button.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(document.getElementById(button.dataset.copy).textContent);
-        button.textContent = "Copied";
+        label.textContent = "Copied";
       } catch {
-        button.textContent = "Select and copy";
+        label.textContent = "Select and copy";
       }
-      setTimeout(() => { button.textContent = "Copy"; }, 1500);
+      setTimeout(() => { label.textContent = "Copy"; }, 1500);
     });
   }
 </script>

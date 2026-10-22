@@ -26,7 +26,7 @@ Item {
         anchors.fill: parent
         leftPadding: 4
         verticalAlignment: Text.AlignVCenter
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         font.pixelSize: Math.max(6, Math.min(12, root.height - 4))
         color: root.textColor
         text: entry.visible ? "" : (root.display !== "" ? root.display : root.format(root.value))
@@ -37,7 +37,7 @@ Item {
         anchors.fill: parent
         leftPadding: 4
         verticalAlignment: Text.AlignVCenter
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         font.pixelSize: Math.max(6, Math.min(12, root.height - 4))
         color: Qure.theme.selection
         visible: false

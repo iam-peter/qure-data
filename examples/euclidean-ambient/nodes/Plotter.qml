@@ -61,7 +61,7 @@ Item {
         anchors.margins: 4
         text: isNaN(root.last) ? "" : root.last.toFixed(1)
         font.pixelSize: 10
-        font.family: "DejaVu Sans Mono"
+        font.family: "JetBrains Mono"
         color: Qure.theme.commentText
     }
 }
