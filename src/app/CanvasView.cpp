@@ -275,7 +275,7 @@ void CanvasView::mousePressEvent(QMouseEvent* e) {
     // A click shows where the mouse is even without hover events (touch
     // screens have none): placing a box goes there.
     mouseCanvas_ = p;
-    mouseInside_ = true;
+    pointerKnown_ = true;
     Canvas* c = model();
     if (!c) {
         e->ignore();
@@ -441,12 +441,10 @@ void CanvasView::runClick(Box& box) {
 }
 
 void CanvasView::hoverMoveEvent(QHoverEvent* e) {
-    mouseInside_ = true;
+    pointerKnown_ = true;
     mouseCanvas_ = toCanvas(e->position());
     updateHover(mouseCanvas_);
 }
-
-void CanvasView::hoverLeaveEvent(QHoverEvent*) { mouseInside_ = false; }
 
 void CanvasView::updateHover(QPointF p) {
     const Hit hit = hitTest(p);
@@ -562,7 +560,9 @@ void CanvasView::placeBox(const QString& kind, const QString& text, bool immedia
     // Where the mouse is: from hover events, or – when none has arrived yet,
     // e.g. a shortcut right after the window got focus – from the cursor.
     QPointF pos = visibleCanvasRect().center();
-    if (mouseInside_ && visibleCanvasRect().contains(mouseCanvas_))
+    // The last known position is kept when the mouse leaves, as in Pd: a
+    // shortcut from the menu still puts the box where you last pointed.
+    if (pointerKnown_ && visibleCanvasRect().contains(mouseCanvas_))
         pos = mouseCanvas_;
     else if (const QPointF local = mapFromGlobal(QCursor::pos()); contains(local))
         pos = toCanvas(local);

@@ -124,7 +124,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent* e) override;
     void mouseDoubleClickEvent(QMouseEvent* e) override;
     void hoverMoveEvent(QHoverEvent* e) override;
-    void hoverLeaveEvent(QHoverEvent* e) override;
     void wheelEvent(QWheelEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
 
@@ -168,7 +167,7 @@ private:
     Drag drag_ = Drag::None;
     QPointF pressCanvas_, lastCanvas_, lastItem_, moveTotal_;
     QPointF mouseCanvas_;
-    bool mouseInside_ = false;
+    bool pointerKnown_ = false; ///< mouseCanvas_ came from a hover or a click
     BoxId connectFrom_ = 0;
     int connectOutlet_ = 0;
     QPointF connectEnd_;
