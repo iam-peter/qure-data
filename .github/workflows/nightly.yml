@@ -77,7 +77,7 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-log-linux
@@ -111,7 +111,7 @@ jobs:
           stamp=$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d%H%M%S)
           packaging/deb/build-deb.sh AppDir "$base+git$stamp.${GITHUB_SHA::7}" qure-data-linux-x64.deb
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: qure-data-linux
           path: |
@@ -146,7 +146,7 @@ jobs:
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-log-windows
@@ -163,7 +163,7 @@ jobs:
           windeployqt --release --qmldir qml --qmldir examples qure-data/qure.exe
           Compress-Archive -Path qure-data -DestinationPath qure-data-windows-x64.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: qure-data-windows
           path: qure-data-windows-x64.zip
@@ -194,7 +194,7 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-log-macos
@@ -208,7 +208,7 @@ jobs:
           macdeployqt build/bin/qure.app -qmldir="$GITHUB_WORKSPACE/qml" -qmldir="$GITHUB_WORKSPACE/examples" -dmg
           mv build/bin/qure.dmg qure-data-macos.dmg
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: qure-data-macos
           path: qure-data-macos.dmg
@@ -220,7 +220,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: qure-data-*
           path: artifacts

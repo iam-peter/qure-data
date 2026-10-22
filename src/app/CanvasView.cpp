@@ -555,8 +555,13 @@ void CanvasView::placeBox(const QString& kind, const QString& text, bool immedia
         setEditMode(true);
     cancelEdit();
 
-    QPointF pos = mouseInside_ && visibleCanvasRect().contains(mouseCanvas_) ? mouseCanvas_
-                                                                              : visibleCanvasRect().center();
+    // Where the mouse is: from hover events, or – when none has arrived yet,
+    // e.g. a shortcut right after the window got focus – from the cursor.
+    QPointF pos = visibleCanvasRect().center();
+    if (mouseInside_ && visibleCanvasRect().contains(mouseCanvas_))
+        pos = mouseCanvas_;
+    else if (const QPointF local = mapFromGlobal(QCursor::pos()); contains(local))
+        pos = toCanvas(local);
     autopatchFrom_ = 0;
     if (selection_.size() == 1) {
         // Pd's autopatching: place below the selected box and connect.
