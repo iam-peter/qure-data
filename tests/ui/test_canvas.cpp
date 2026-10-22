@@ -15,6 +15,7 @@
 
 #include <QQmlApplicationEngine>
 #include <QQmlExtensionPlugin>
+#include <QCursor>
 #include <QQuickWindow>
 #include <QtTest>
 
@@ -102,10 +103,12 @@ private slots:
 
     void typesANewObject() {
         view_->setEditMode(true);
-        // A click on empty canvas, then the shortcut: the box goes there.
-        // (A plain mouse move would do on X11, but synthetic moves produce
-        // no hover events on Windows and macOS.)
-        QTest::mouseClick(window_, Qt::LeftButton, {}, at(QPointF(100, 80)));
+        // Point at the spot, then the shortcut: the box goes there. The real
+        // cursor is moved too: on Windows it otherwise stays elsewhere and
+        // its genuine hover events override the synthetic click.
+        const QPoint spot = at(QPointF(100, 80));
+        QCursor::setPos(window_->mapToGlobal(spot));
+        QTest::mouseClick(window_, Qt::LeftButton, {}, spot);
         QTest::keyClick(window_, Qt::Key_1, Qt::ControlModifier);
         type("osc~ 440");
         QTest::keyClick(window_, Qt::Key_Return);
