@@ -7,6 +7,8 @@
 #include "Runtime.hpp"
 #include "Snapshot.hpp"
 
+#include <QUrl>
+
 namespace qure::ui {
 
 NodeHandle::NodeHandle(PatchDocument& document, Box& box) : QObject(&document), document_(document), box_(&box) {}
@@ -28,6 +30,9 @@ int NodeHandle::numOutlets() const { return box_->numOutlets(); }
 
 QVariantMap NodeHandle::info() const {
     QVariantMap m;
+    // Where relative file arguments (scene.qml, effect.frag) resolve.
+    if (const auto dir = box_->canvas->directory(); !dir.empty())
+        m.insert(QStringLiteral("dir"), QUrl::fromLocalFile(QString::fromStdString(dir.string()) + QLatin1Char('/')));
     if (box_->child) {
         const auto& p = box_->child->props;
         m.insert(QStringLiteral("x1"), p.x1);
@@ -144,8 +149,19 @@ void NodeHandle::applyNotification(Symbol selector, AtomSpan args) {
     } else if (name == "bang") {
         emit bang();
     } else if (name == "in" && args.size() >= 2) {
-        emit received(static_cast<int>(args[0].asFloat()), QString::fromUtf8(args[1].asSymbol().str()),
-                      toVariant(args.subspan(2)).toList());
+        const int inlet = static_cast<int>(args[0].asFloat());
+        const QString sel = QString::fromUtf8(args[1].asSymbol().str());
+        const auto rest = args.subspan(2);
+        // Remember named values: "p0 0.5", "color 1 0 0", a float per inlet.
+        if (sel == QLatin1String("float") && !rest.empty())
+            params_.insert(QStringLiteral("in%1").arg(inlet), toVariant(rest[0]));
+        else if (sel != QLatin1String("bang") && sel != QLatin1String("list") && rest.size() == 1)
+            params_.insert(sel, toVariant(rest[0]));
+        else if (sel != QLatin1String("bang") && sel != QLatin1String("list") && rest.size() > 1)
+            params_.insert(sel, toVariant(rest));
+        if (sel != QLatin1String("bang") && !rest.empty())
+            emit paramsChanged();
+        emit received(inlet, sel, toVariant(rest).toList());
     }
     emit message(QString::fromUtf8(name), toVariant(args).toList());
 }

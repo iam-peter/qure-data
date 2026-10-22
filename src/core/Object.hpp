@@ -117,6 +117,8 @@ public:
     [[nodiscard]] int numOutlets() const noexcept { return static_cast<int>(outlets_.size()); }
     [[nodiscard]] bool isSignalInlet(int i) const noexcept { return inlets_[i].signal; }
     [[nodiscard]] bool isSignalOutlet(int o) const noexcept { return outlets_[o].signal; }
+    [[nodiscard]] bool isTextureInlet(int i) const noexcept { return inlets_[i].texture; }
+    [[nodiscard]] bool isTextureOutlet(int o) const noexcept { return outlets_[o].texture; }
     /// Index among signal inlets/outlets only (what DspIO::in/out use).
     [[nodiscard]] int signalInletIndex(int inlet) const noexcept { return inlets_[inlet].signalIndex; }
     [[nodiscard]] int signalOutletIndex(int outlet) const noexcept { return outlets_[outlet].signalIndex; }
@@ -165,6 +167,11 @@ protected:
     int addSignalInlet(float initialScalar = 0.0f);
     int addOutlet() { return addIolet(outlets_, false, numSignalOut_); }
     int addSignalOutlet() { return addIolet(outlets_, true, numSignalOut_); }
+    /// Texture iolets join the boxes of the visuals module (gfx.*). The
+    /// engine sends nothing over texture cords – the GUI builds its render
+    /// graph from them. A texture inlet also accepts control messages.
+    int addTextureInlet();
+    int addTextureOutlet();
 
     // Message handlers. Defaults mimic Pd: a list is spread over the inlets,
     // a float into a signal inlet sets its scalar, everything else is an
@@ -224,6 +231,7 @@ private:
     struct Iolet {
         bool signal;
         int signalIndex;
+        bool texture = false;
     };
     static int addIolet(std::vector<Iolet>& v, bool signal, int& signalCount);
     void postFormatted(LogLevel level, std::string_view fmt, std::format_args args) const;

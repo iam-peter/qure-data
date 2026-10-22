@@ -120,7 +120,7 @@ private:
             if (!owner || idx < 0)
                 return;
             for (const auto* c : outgoing(owner))
-                if (c->outlet == idx && !owner->outlets[static_cast<std::size_t>(idx)])
+                if (c->outlet == idx && owner->outlets[static_cast<std::size_t>(idx)] == IoletKind::Control)
                     resolveControl(c->to, c->inlet, out, depth + 1);
             return;
         }
@@ -137,7 +137,7 @@ private:
             plan_->bindings.push_back({o, static_cast<std::uint32_t>(ranges.size())});
             for (int outlet = 0; outlet < o->numOutlets(); ++outlet) {
                 const auto offset = plan_->targets.size();
-                if (!o->isSignalOutlet(outlet) && o->role() == ObjectRole::Normal) {
+                if (!o->isSignalOutlet(outlet) && !o->isTextureOutlet(outlet) && o->role() == ObjectRole::Normal) {
                     for (const auto* c : outgoing(box)) {
                         if (c->outlet != outlet)
                             continue;

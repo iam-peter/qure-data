@@ -31,3 +31,4 @@ endfunction()
 
 qure_add_ui_test(qure_ui_tests test_canvas.cpp)
 qure_add_ui_test(qure_ui_example_tests test_examples.cpp)
+qure_add_ui_test(qure_ui_visual_tests test_visuals.cpp)

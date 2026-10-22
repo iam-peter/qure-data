@@ -19,6 +19,7 @@ add_library(qure_core STATIC
     objects/Signal.cpp
     objects/Tables.cpp
     objects/Time.cpp
+    objects/Visuals.cpp
 )
 add_library(qure::core ALIAS qure_core)
 

@@ -62,6 +62,24 @@ DSP is on.
   item.
 - The built-in `[xypad]` sets the delay feedback (x) and brightness (y).
 
+## Audio visuals
+
+A little generative synth, and visuals made from its sound on the GPU (see
+[docs/VISUALS.md](../docs/VISUALS.md)). The output window opens with the
+patch; click in it to change the synth's speed and pitch.
+
+- **`[gfx.audio~]`** turns the sound into a texture, which the built-in
+  `scope` effect draws as a glowing line. **`[gfx.feedback]`** leaves
+  trails.
+- **`[gfx.qml Scene.qml]`** renders `Scene.qml`, a plain Qt Quick scene,
+  into a texture. It gets the sound's level as `node.params.level` from a
+  `[level $1(` message, and its clicks come out of the box's right outlet
+  through `node.output(1, …)`.
+- **`[gfx.shader glow.frag]`** runs `glow.frag`, this project's own effect: one
+  `vec4 effect(vec2 uv)` function. Edit and save it while the patch runs,
+  and it is recompiled and swapped in.
+- Sliders mix the layers, set the trail length and rotate the hue.
+
 ## Basics
 
 Single-file patches: a sine with sliders, an FM keyboard synth, and a step

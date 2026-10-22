@@ -36,6 +36,7 @@ void ObjectRegistry::registerBuiltins() {
     registerFilterObjects(*this);
     registerTableObjects(*this);
     registerIoObjects(*this);
+    registerVisualObjects(*this);
 }
 
 } // namespace qure

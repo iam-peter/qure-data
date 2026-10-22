@@ -35,7 +35,10 @@ include(cmake/Dependencies.cmake)
 if(QURE_BUILD_APP)
     # At the top level so the GUI and its tests share Qt's targets and
     # automoc settings.
-    find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Quick QuickControls2 ShaderTools Test)
+    # ShaderToolsPrivate: QShaderBaker for runtime shaders (visuals). Like
+    # QRhi it is semi-public API with its own compatibility promise.
+    set(QT_NO_PRIVATE_MODULE_WARNING ON)
+    find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Quick QuickControls2 ShaderTools ShaderToolsPrivate Test)
     qt_standard_project_setup(REQUIRES 6.8)
 endif()
 

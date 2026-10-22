@@ -17,6 +17,16 @@ class Runtime;
 
 using BoxId = std::uint64_t;
 
+/// What a connection carries. Control outlets may feed any inlet (a float
+/// into a signal inlet sets its scalar, a message into a texture inlet goes
+/// to the visual node); signal and texture outlets only feed their own kind.
+enum class IoletKind : unsigned char { Control, Signal, Texture };
+
+/// Whether an outlet of kind `out` may feed an inlet of kind `in`.
+[[nodiscard]] constexpr bool compatible(IoletKind out, IoletKind in) noexcept {
+    return out == IoletKind::Control || out == in;
+}
+
 /// The kinds of boxes a Pd canvas can contain.
 enum class BoxKind : unsigned char {
     Object,     ///< `#X obj` – includes subpatches, abstractions, graphs and GUI objects
@@ -43,11 +53,11 @@ struct Box {
     std::unique_ptr<Canvas> child;  ///< subpatch, abstraction instance or graph
     std::string error;              ///< non-empty: the box failed to create
 
-    /// Signal flag per inlet/outlet. Derived from the object, from the
-    /// child's [inlet]/[outlet] boxes, or (for broken boxes) from the
-    /// connections that use it.
-    std::vector<bool> inlets;
-    std::vector<bool> outlets;
+    /// Kind of each inlet/outlet. Derived from the object, from the child's
+    /// [inlet]/[outlet] boxes, or (for broken boxes) from the connections
+    /// that use it.
+    std::vector<IoletKind> inlets;
+    std::vector<IoletKind> outlets;
 
     /// Size in canvas units, maintained by the GUI (it knows the font).
     float w = 0, h = 0;
@@ -71,7 +81,9 @@ struct Connection {
     int inlet;
 
     friend bool operator==(const Connection&, const Connection&) = default;
-    [[nodiscard]] bool isSignal() const noexcept { return from->outlets[static_cast<std::size_t>(outlet)]; }
+    [[nodiscard]] IoletKind kind() const noexcept { return from->outlets[static_cast<std::size_t>(outlet)]; }
+    [[nodiscard]] bool isSignal() const noexcept { return kind() == IoletKind::Signal; }
+    [[nodiscard]] bool isTexture() const noexcept { return kind() == IoletKind::Texture; }
 };
 
 /// Window/graph properties carried through load and save.

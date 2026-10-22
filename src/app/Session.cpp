@@ -2,6 +2,7 @@
 
 #include "NodeHandle.hpp"
 #include "PatchDocument.hpp"
+#include "Visuals.hpp"
 
 #include "AudioDriver.hpp"
 #include "Runtime.hpp"
@@ -40,6 +41,8 @@ Session::Session(QObject* parent, Audio audio)
     runtime_->searchPaths.emplace_back((data + QStringLiteral("/abstractions")).toStdString());
     rebuildClassList();
 
+    visuals_ = new VisualEngine(*this);
+
     connect(&pump_, &QTimer::timeout, this, &Session::pump);
     pump_.setTimerType(Qt::PreciseTimer);
     pump_.start(10);
@@ -58,6 +61,8 @@ Session::~Session() {
     if (driver_)
         driver_->stop();
     driver_.reset();
+    delete visuals_; // its windows show items bound to the documents' nodes
+    visuals_ = nullptr;
     for (auto* d : std::as_const(documents_))
         delete d;
     documents_.clear();
@@ -123,6 +128,7 @@ PatchDocument* Session::adopt(Canvas& canvas) {
     auto* doc = new PatchDocument(*this, canvas);
     documents_ << doc;
     emit documentsChanged();
+    visuals_->scheduleRebuild();
     return doc;
 }
 
@@ -300,7 +306,9 @@ void Session::closeDocument(PatchDocument* doc) {
     emit documentsChanged();
     Canvas& canvas = doc->rootCanvas();
     // Invalidate views first, then drop the patch from the engine.
+    visuals_->release(doc);
     delete doc;
+    visuals_->scheduleRebuild();
     runtime_->closePatch(canvas);
 }
 
@@ -322,6 +330,8 @@ void Session::sendMessage(const QString& text) {
 
 void Session::commit() {
     runtime_->commit();
+    if (visuals_)
+        visuals_->scheduleRebuild();
     for (const auto& w : runtime_->compileWarnings())
         console_.append(ConsoleModel::Warning, QString::fromStdString(w));
 }

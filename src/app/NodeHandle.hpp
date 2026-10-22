@@ -41,6 +41,11 @@ class NodeHandle : public QObject {
     /// Extra description for special boxes, e.g. array graphs:
     /// { array, size, x1, y1, x2, y2 }.
     Q_PROPERTY(QVariantMap info READ info NOTIFY argsChanged)
+    /// The latest value of every named message the object received
+    /// (`p0 0.5` → params.p0 = 0.5; a float into inlet 2 → params.in2).
+    /// Kept even while no QML is shown, so a node created later starts
+    /// from the current state.
+    Q_PROPERTY(QVariantMap params READ params NOTIFY paramsChanged)
 
 public:
     NodeHandle(PatchDocument& document, Box& box);
@@ -55,6 +60,7 @@ public:
     [[nodiscard]] int numInlets() const;
     [[nodiscard]] int numOutlets() const;
     [[nodiscard]] QVariantMap info() const;
+    [[nodiscard]] QVariantMap params() const { return params_; }
 
     Q_INVOKABLE void send(const QVariant& value);
     Q_INVOKABLE void sendMessage(const QString& selector, const QVariantList& args = {});
@@ -82,6 +88,7 @@ signals:
     void editModeChanged();
     void selectedChanged();
     void samplesChanged();
+    void paramsChanged();
     void message(const QString& selector, const QVariantList& args);
     void received(int inlet, const QString& selector, const QVariantList& args);
     void bang();
@@ -91,6 +98,7 @@ private:
     Box* box_;
     QVariant value_;
     QList<float> samples_;
+    QVariantMap params_;
     std::vector<float> scratch_;
     std::uint64_t snapshotSeq_ = 0;
     bool editMode_ = false;

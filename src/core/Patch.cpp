@@ -188,17 +188,22 @@ void Canvas::refreshIolets(Box& box) {
     if (box.object) {
         box.inlets.resize(static_cast<std::size_t>(box.object->numInlets()));
         for (int i = 0; i < box.object->numInlets(); ++i)
-            box.inlets[static_cast<std::size_t>(i)] = box.object->isSignalInlet(i);
+            box.inlets[static_cast<std::size_t>(i)] = box.object->isSignalInlet(i)    ? IoletKind::Signal
+                                                      : box.object->isTextureInlet(i) ? IoletKind::Texture
+                                                                                      : IoletKind::Control;
         box.outlets.resize(static_cast<std::size_t>(box.object->numOutlets()));
         for (int o = 0; o < box.object->numOutlets(); ++o)
-            box.outlets[static_cast<std::size_t>(o)] = box.object->isSignalOutlet(o);
+            box.outlets[static_cast<std::size_t>(o)] = box.object->isSignalOutlet(o)    ? IoletKind::Signal
+                                                       : box.object->isTextureOutlet(o) ? IoletKind::Texture
+                                                                                        : IoletKind::Control;
     } else if (box.child) {
         box.inlets.clear();
         for (const Box* b : box.child->ioletBoxes(true))
-            box.inlets.push_back(b->object->role() == ObjectRole::SignalInlet);
+            box.inlets.push_back(b->object->role() == ObjectRole::SignalInlet ? IoletKind::Signal : IoletKind::Control);
         box.outlets.clear();
         for (const Box* b : box.child->ioletBoxes(false))
-            box.outlets.push_back(b->object->role() == ObjectRole::SignalOutlet);
+            box.outlets.push_back(b->object->role() == ObjectRole::SignalOutlet ? IoletKind::Signal
+                                                                                : IoletKind::Control);
     } else if (box.broken()) {
         // Keep whatever iolets the existing connections need.
         std::size_t ins = 0, outs = 0;
@@ -208,8 +213,8 @@ void Canvas::refreshIolets(Box& box) {
             if (c.from == &box)
                 outs = std::max(outs, static_cast<std::size_t>(c.outlet) + 1);
         }
-        box.inlets.resize(ins, false);
-        box.outlets.resize(outs, false);
+        box.inlets.resize(ins, IoletKind::Control);
+        box.outlets.resize(outs, IoletKind::Control);
     } else {
         box.inlets.clear();
         box.outlets.clear();
@@ -231,8 +236,8 @@ void Canvas::dropInvalidConnections(Box& box) {
         if (c.to == &box && c.inlet >= box.numInlets())
             return true;
         if (c.from == &box || c.to == &box)
-            return c.from->outlets[static_cast<std::size_t>(c.outlet)] && !c.to->broken() &&
-                   !c.to->inlets[static_cast<std::size_t>(c.inlet)];
+            return !c.to->broken() && !compatible(c.from->outlets[static_cast<std::size_t>(c.outlet)],
+                                                  c.to->inlets[static_cast<std::size_t>(c.inlet)]);
         return false;
     });
 }
@@ -250,9 +255,9 @@ bool Canvas::canConnect(const Box& from, int outlet, const Box& to, int inlet) c
     const bool toOk = inlet < to.numInlets() || to.broken();
     if (!fromOk || !toOk)
         return false;
-    if (outlet < from.numOutlets() && from.outlets[static_cast<std::size_t>(outlet)] && !to.broken() &&
-        !to.inlets[static_cast<std::size_t>(inlet)])
-        return false; // signal outlet into control inlet
+    if (outlet < from.numOutlets() && !to.broken() &&
+        !compatible(from.outlets[static_cast<std::size_t>(outlet)], to.inlets[static_cast<std::size_t>(inlet)]))
+        return false; // e.g. a signal outlet into a control inlet
     return !isConnected(from, outlet, to, inlet);
 }
 
@@ -260,9 +265,9 @@ bool Canvas::connect(Box& from, int outlet, Box& to, int inlet) {
     if (!canConnect(from, outlet, to, inlet))
         return false;
     if (from.broken() && outlet >= from.numOutlets())
-        from.outlets.resize(static_cast<std::size_t>(outlet) + 1, false);
+        from.outlets.resize(static_cast<std::size_t>(outlet) + 1, IoletKind::Control);
     if (to.broken() && inlet >= to.numInlets())
-        to.inlets.resize(static_cast<std::size_t>(inlet) + 1, false);
+        to.inlets.resize(static_cast<std::size_t>(inlet) + 1, IoletKind::Control);
     connections_.push_back({&from, outlet, &to, inlet});
     touch();
     return true;

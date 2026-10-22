@@ -12,6 +12,10 @@ format, so it opens Pd's `.pd` files too, and can save them back as `.pd`.
   are screen-space anti-aliased line quads, both batched into a few draw
   calls. Text is drawn only for visible boxes, so even very large patches
   stay smooth.
+* **Visuals:** the `gfx.*` objects make real-time graphics like Max's
+  Jitter or Pd's GEM: shaders you write as one GLSL function and edit while
+  the patch runs, whole QML scenes as layers, feedback, and audio as
+  textures (see [docs/VISUALS.md](docs/VISUALS.md)).
 * **Nodes:** GUI nodes are QML. Sliders, toggles, knobs, a keyboard, a scope
   and an XY pad are each one `.qml` file, and a new node can be QML only,
   with no C++ (see [docs/WRITING_FRONTENDS.md](docs/WRITING_FRONTENDS.md)).
@@ -72,6 +76,9 @@ for your own (see [examples/README.md](examples/README.md)):
   into an engine array) and shape an ADSR envelope with draggable handles.
 * **Euclidean ambient**: euclidean rhythm rings drive FM bells through a
   feedback delay, with a scrolling level plot.
+* **Audio visuals**: a small synth drives GPU visuals – its waveform as a
+  texture, a QML scene you can click, feedback and the project's own
+  shader.
 
 ## Tests
 
@@ -125,3 +132,5 @@ The packaging scripts are in `packaging/deb/`.
 * [docs/WRITING_OBJECTS.md](docs/WRITING_OBJECTS.md): engine objects in C++.
 * [docs/WRITING_FRONTENDS.md](docs/WRITING_FRONTENDS.md): node front ends in
   QML.
+* [docs/VISUALS.md](docs/VISUALS.md): the visuals module, writing effects
+  and scenes.

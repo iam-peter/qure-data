@@ -115,6 +115,7 @@
     <li>Edits are compiled into a plan and swapped in between two audio blocks: changing a patch never blocks or clicks the sound. Subpatch inlets and outlets cost nothing at run time, and signal buffers are reused.</li>
     <li>Boxes and cords are drawn by shaders in a few batched draw calls, so even huge patches pan and zoom smoothly. Pd&rsquo;s keys work: Ctrl+1 for an object, autopatching, drag from an outlet to connect.</li>
     <li>Every GUI node &ndash; slider, toggle, keyboard, scope &ndash; is one QML file. A project can bring its own nodes in a <code>nodes/</code> folder next to the patch, without compiling anything.</li>
+    <li>Real-time visuals like Jitter or GEM: shaders written as one GLSL function and edited while the patch runs, whole QML scenes as layers, video feedback, and sound as textures &ndash; all on the GPU.</li>
     <li>Audio through PipeWire, PulseAudio, JACK or ALSA on Linux, Core Audio on macOS and WASAPI on Windows.</li>
   </ul>
 
@@ -130,6 +131,12 @@
       <figcaption>Euclidean rhythm rings drive FM bells into a feedback delay.</figcaption>
     </figure>
   </div>
+
+  <h2>Visuals</h2>
+  <p>The <code>gfx.*</code> objects turn a patch into real-time graphics, like Max&rsquo;s Jitter or Pd&rsquo;s GEM.
+    An effect is one GLSL function, recompiled every time you save it; a whole QML scene is one box.</p>
+  <img class="shot" src="audio-visuals.png" width="640" height="360" loading="lazy"
+       alt="The audio visuals example: a synth's waveform drawn as glowing lines with feedback trails, behind coloured rings that pulse with its level">
 
   <h2>Debian and Ubuntu</h2>
   <p>The APT repository brings Qure Data with its own Qt, for Ubuntu 22.04,

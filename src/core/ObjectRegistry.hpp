@@ -58,5 +58,6 @@ void registerSignalObjects(ObjectRegistry&);
 void registerFilterObjects(ObjectRegistry&);
 void registerTableObjects(ObjectRegistry&);
 void registerIoObjects(ObjectRegistry&);
+void registerVisualObjects(ObjectRegistry&);
 
 } // namespace qure

@@ -21,6 +21,7 @@ struct Theme {
     QColor signalCord;
     QColor controlIolet;
     QColor signalIolet;
+    QColor textureCord; ///< cords and iolets of the visuals module (gfx.*)
     QColor rubberBand;
     QColor flash;
     bool dark = false;
@@ -41,6 +42,7 @@ struct Theme {
         t.signalCord = QColor(0x2f, 0x33, 0x3a);
         t.controlIolet = QColor(0x8a, 0x8d, 0x93);
         t.signalIolet = QColor(0x2f, 0x33, 0x3a);
+        t.textureCord = QColor(0x9b, 0x4d, 0xe0);
         t.rubberBand = QColor(0x25, 0x7c, 0xf0, 0x30);
         t.flash = QColor(0x25, 0x7c, 0xf0);
         return t;
@@ -63,6 +65,7 @@ struct Theme {
         t.signalCord = QColor(0xc8, 0xcd, 0xd5);
         t.controlIolet = QColor(0x8a, 0x91, 0x9c);
         t.signalIolet = QColor(0xc8, 0xcd, 0xd5);
+        t.textureCord = QColor(0xc0, 0x84, 0xff);
         t.rubberBand = QColor(0x4d, 0x9a, 0xff, 0x30);
         t.flash = QColor(0x4d, 0x9a, 0xff);
         return t;

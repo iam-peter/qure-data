@@ -105,6 +105,13 @@ id path and recreate deleted boxes with their **original ids** and
 positions, so later commands still apply after undo/redo. Copy/paste uses
 Pd's own clipboard text format.
 
+## Visuals
+
+The `gfx.*` objects build a texture graph that the GUI renders with Qt
+Quick at display rate, never on the audio thread; effects are GLSL
+functions compiled at runtime with `QShaderBaker`. See
+[VISUALS.md](VISUALS.md).
+
 ## Compatibility
 
 Reading and writing round-trips Pd files, including `#X obj/msg/text/

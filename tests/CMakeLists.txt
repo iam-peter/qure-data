@@ -8,6 +8,7 @@ add_executable(qure_tests
     test_math_time.cpp
     test_filters_tables.cpp
     test_examples.cpp
+    test_visuals.cpp
 )
 target_link_libraries(qure_tests PRIVATE qure::core Catch2::Catch2WithMain)
 # A console program (qt_standard_project_setup makes executables GUI apps

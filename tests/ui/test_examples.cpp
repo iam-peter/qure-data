@@ -94,14 +94,17 @@ private slots:
     void opensCleanly_data() {
         QTest::addColumn<QString>("path");
         QTest::addColumn<int>("widgets");
-        QTest::newRow("drum machine") << QStringLiteral("drum-machine/main.qd") << 5;
-        QTest::newRow("wavetable synth") << QStringLiteral("wavetable-synth/main.qd") << 3;
-        QTest::newRow("euclidean ambient") << QStringLiteral("euclidean-ambient/main.qd") << 4;
+        QTest::addColumn<bool>("nodePack");
+        QTest::newRow("drum machine") << QStringLiteral("drum-machine/main.qd") << 5 << true;
+        QTest::newRow("wavetable synth") << QStringLiteral("wavetable-synth/main.qd") << 3 << true;
+        QTest::newRow("euclidean ambient") << QStringLiteral("euclidean-ambient/main.qd") << 4 << true;
+        QTest::newRow("audio visuals") << QStringLiteral("audio-visuals/main.qd") << 3 << false;
     }
 
     void opensCleanly() {
         QFETCH(QString, path);
         QFETCH(int, widgets);
+        QFETCH(bool, nodePack);
         session_->console()->clear();
         open(path);
         // The project's nodes came from its own folder, and every box made it.
@@ -116,7 +119,9 @@ private slots:
         QTRY_VERIFY(view_->liveWidgets() >= widgets);
         const QString log = session_->console()->allText();
         QVERIFY2(!log.contains(QStringLiteral("front end")), qPrintable(log));
-        QVERIFY2(log.contains(QStringLiteral("loaded")), qPrintable(log));
+        if (nodePack)
+            QVERIFY2(log.contains(QStringLiteral("loaded")), qPrintable(log));
+        QVERIFY2(!log.contains(QStringLiteral("shader")), qPrintable(log)); // no effect failed to compile
         // The copy is a real project on disk.
         QVERIFY(QFileInfo(doc_->fileUrl().toLocalFile()).isFile());
     }

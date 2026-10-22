@@ -16,6 +16,18 @@ int Object::addIolet(std::vector<Iolet>& v, bool signal, int& signalCount) {
     return static_cast<int>(v.size()) - 1;
 }
 
+int Object::addTextureInlet() {
+    const int index = addIolet(inlets_, false, numSignalIn_);
+    inlets_.back().texture = true;
+    return index;
+}
+
+int Object::addTextureOutlet() {
+    const int index = addIolet(outlets_, false, numSignalOut_);
+    outlets_.back().texture = true;
+    return index;
+}
+
 int Object::addSignalInlet(float initialScalar) {
     const int index = addIolet(inlets_, true, numSignalIn_);
     scalars_.push_back(initialScalar);

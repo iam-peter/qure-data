@@ -11,13 +11,17 @@ qt_add_library(qure_gui STATIC
     SceneGraph.cpp SceneGraph.hpp
     Session.cpp Session.hpp
     Theme.hpp
+    Visuals.cpp Visuals.hpp
     WaveView.cpp WaveView.hpp
 )
 add_library(qure::gui ALIAS qure_gui)
 
 set(QML_DIR ${PROJECT_SOURCE_DIR}/qml)
-file(GLOB QURE_QML RELATIVE ${QML_DIR} CONFIGURE_DEPENDS ${QML_DIR}/*.qml ${QML_DIR}/nodes/*.qml ${QML_DIR}/nodes/*.js)
-file(GLOB QURE_QML_RESOURCES RELATIVE ${QML_DIR} CONFIGURE_DEPENDS ${QML_DIR}/nodes/*.json)
+file(GLOB QURE_QML RELATIVE ${QML_DIR} CONFIGURE_DEPENDS
+    ${QML_DIR}/*.qml ${QML_DIR}/nodes/*.qml ${QML_DIR}/nodes/*.js ${QML_DIR}/visuals/*.qml)
+# Built-in effects for [gfx.shader name], compiled at runtime like users'.
+file(GLOB QURE_QML_RESOURCES RELATIVE ${QML_DIR} CONFIGURE_DEPENDS
+    ${QML_DIR}/nodes/*.json ${QML_DIR}/visuals/effects/*.frag)
 foreach(f IN LISTS QURE_QML QURE_QML_RESOURCES)
     set_source_files_properties(${QML_DIR}/${f} PROPERTIES QT_RESOURCE_ALIAS ${f})
 endforeach()
@@ -29,7 +33,7 @@ list(TRANSFORM QURE_QML_RESOURCES PREPEND ${QML_DIR}/)
 # loaded from disk at runtime like any user node pack, not compiled in.
 set(EXAMPLES_DIR ${PROJECT_SOURCE_DIR}/examples)
 file(GLOB_RECURSE QURE_EXAMPLES RELATIVE ${EXAMPLES_DIR} CONFIGURE_DEPENDS
-    ${EXAMPLES_DIR}/*.qd ${EXAMPLES_DIR}/*.qml ${EXAMPLES_DIR}/*.js ${EXAMPLES_DIR}/*.json)
+    ${EXAMPLES_DIR}/*.qd ${EXAMPLES_DIR}/*.qml ${EXAMPLES_DIR}/*.js ${EXAMPLES_DIR}/*.json ${EXAMPLES_DIR}/*.frag)
 foreach(f IN LISTS QURE_EXAMPLES)
     set_source_files_properties(${EXAMPLES_DIR}/${f} PROPERTIES QT_RESOURCE_ALIAS examples/${f})
     list(APPEND QURE_QML_RESOURCES ${EXAMPLES_DIR}/${f})
@@ -53,6 +57,8 @@ qt_add_shaders(qure_gui "qure_shaders"
 target_include_directories(qure_gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(qure_gui
     PUBLIC qure::core qure::audio Qt6::Core Qt6::Gui Qt6::Quick Qt6::QuickControls2
+    # QShaderBaker (runtime shader compilation) is semi-public API, like QRhi.
+    PRIVATE Qt6::ShaderToolsPrivate
     PRIVATE qure::options)
 
 # --- the application ---------------------------------------------------------

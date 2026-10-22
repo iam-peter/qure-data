@@ -296,12 +296,15 @@ QSGNode* CanvasLayer::updateOverlay(QSGNode* old) {
             const auto end = std::min(conns.size(), (c + 1) * kCordChunk);
             for (std::size_t i = c * kCordChunk; i < end; ++i) {
                 const auto& conn = conns[i];
-                const bool signal = conn.isSignal();
+                const IoletKind kind = conn.kind();
                 const bool selected = sel && sel->from == conn.from->id && sel->outlet == conn.outlet &&
                                       sel->to == conn.to->id && sel->inlet == conn.inlet;
                 root->cordBatch.add(outletPoint(*conn.from, conn.outlet), inletPoint(*conn.to, conn.inlet),
-                                    selected ? th.selection : (signal ? th.signalCord : th.controlCord),
-                                    signal ? 2.0f : 1.0f);
+                                    selected                       ? th.selection
+                                    : kind == IoletKind::Signal  ? th.signalCord
+                                    : kind == IoletKind::Texture ? th.textureCord
+                                                                 : th.controlCord,
+                                    kind == IoletKind::Control ? 1.0f : 2.0f);
             }
             setGeometry(root->cords[c], root->cordBatch);
         }
@@ -321,16 +324,17 @@ QSGNode* CanvasLayer::updateOverlay(QSGNode* old) {
             const Box& b = *bp;
             if (b.w <= 0 || !root->ioletArea.intersects(layout::boxRect(b)))
                 continue;
-            for (int i = 0; i < b.numInlets(); ++i) {
-                const bool sig = b.inlets[static_cast<std::size_t>(i)];
-                root->boxBatch.add(layout::inletRect(b, i), sig ? th.signalIolet : th.boxFill,
-                                   sig ? th.signalIolet : th.controlIolet, 1.0f, sg::Shape::Rect, 0.5f);
-            }
-            for (int o = 0; o < b.numOutlets(); ++o) {
-                const bool sig = b.outlets[static_cast<std::size_t>(o)];
-                root->boxBatch.add(layout::outletRect(b, o), sig ? th.signalIolet : th.boxFill,
-                                   sig ? th.signalIolet : th.controlIolet, 1.0f, sg::Shape::Rect, 0.5f);
-            }
+            // Control iolets are hollow, signal and texture ones filled.
+            auto iolet = [&](const QRectF& r, IoletKind kind) {
+                const QColor c = kind == IoletKind::Signal    ? th.signalIolet
+                                 : kind == IoletKind::Texture ? th.textureCord
+                                                              : th.controlIolet;
+                root->boxBatch.add(r, kind == IoletKind::Control ? th.boxFill : c, c, 1.0f, sg::Shape::Rect, 0.5f);
+            };
+            for (int i = 0; i < b.numInlets(); ++i)
+                iolet(layout::inletRect(b, i), b.inlets[static_cast<std::size_t>(i)]);
+            for (int o = 0; o < b.numOutlets(); ++o)
+                iolet(layout::outletRect(b, o), b.outlets[static_cast<std::size_t>(o)]);
         }
         setGeometry(root->iolets, root->boxBatch);
     }

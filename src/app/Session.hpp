@@ -26,6 +26,7 @@ namespace qure::ui {
 
 class CanvasRef;
 class PatchDocument;
+class VisualEngine;
 
 /// Application-wide state, exposed to QML as the `Qure` singleton: open
 /// documents, the console, DSP and audio, and the engine event pump.
@@ -65,6 +66,8 @@ public:
     [[nodiscard]] Runtime& runtime() { return *runtime_; }
     [[nodiscard]] const FrontendRegistry& frontends() const { return frontends_; }
     [[nodiscard]] const Theme& theme() const { return theme_; }
+    /// The visuals module's output windows ([gfx.window]).
+    [[nodiscard]] VisualEngine& visuals() { return *visuals_; }
 
     [[nodiscard]] bool dsp() const { return dsp_; }
     void setDsp(bool on);
@@ -102,7 +105,7 @@ public:
 
     void commit();
     void postInfo(const QString& text) { console_.append(ConsoleModel::Info, text); }
-    void postError(const QString& text) { console_.append(ConsoleModel::Error, text); }
+    Q_INVOKABLE void postError(const QString& text) { console_.append(ConsoleModel::Error, text); }
 
 signals:
     void dspChanged();
@@ -128,6 +131,7 @@ private:
     static Session* instance_;
     std::unique_ptr<Runtime> runtime_;
     std::unique_ptr<AudioDriver> driver_;
+    VisualEngine* visuals_ = nullptr;
     FrontendRegistry frontends_;
     ConsoleModel console_;
     Theme theme_ = Theme::light();
