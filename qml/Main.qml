@@ -14,6 +14,62 @@ ApplicationWindow {
     color: Qure.theme.background
 
     readonly property var patchWindows: new Map()
+    property bool quitting: false
+
+    // Closing the main window quits, as in Pd: patches without a console
+    // and a menu to stop DSP would play on with no way to bring it back.
+    onClosing: (close) => {
+        if (!quitting) {
+            close.accepted = false
+            quit()
+        }
+    }
+
+    /// Quits, first asking about unsaved patches.
+    function quit() {
+        const unsaved = Qure.documents.filter(d => d.modified)
+        if (unsaved.length > 0) {
+            quitQuestion.unsaved = unsaved
+            quitQuestion.open()
+            return
+        }
+        quitNow()
+    }
+
+    function quitNow() {
+        quitting = true
+        for (const w of Array.from(patchWindows.values())) {
+            w.forceClose = true
+            w.close()
+        }
+        Qt.quit()
+    }
+
+    MessageDialog {
+        id: quitQuestion
+        objectName: "quitQuestion"
+        property var unsaved: []
+        text: unsaved.length === 1 ? qsTr("Save changes to %1 before quitting?").arg(unsaved[0].title)
+                                   : qsTr("Save changes to %n patch(es) before quitting?", "", unsaved.length)
+        informativeText: unsaved.length > 1 ? unsaved.map(d => d.title).join(", ") : ""
+        buttons: (unsaved.length === 1 ? MessageDialog.Save : MessageDialog.SaveAll) | MessageDialog.Discard | MessageDialog.Cancel
+        onButtonClicked: (button) => {
+            if (button === MessageDialog.Discard) {
+                main.quitNow()
+            } else if (button === MessageDialog.Save || button === MessageDialog.SaveAll) {
+                // A patch that was never saved needs a file name: show it
+                // and let its own Save dialog take over.
+                for (const d of unsaved) {
+                    if (d.fileUrl.toString() === "" || !d.save()) {
+                        main.openCanvas(d.root)
+                        Qure.postError(qsTr("not quitting: %1 is not saved").arg(d.title))
+                        return
+                    }
+                }
+                main.quitNow()
+            }
+        }
+    }
 
     function openCanvas(ref) {
         if (!ref || !ref.valid)
@@ -45,6 +101,12 @@ ApplicationWindow {
     Connections {
         target: Qure
         function onCanvasOpenRequested(ref) { main.openCanvas(ref) }
+        function onMainWindowRequested() {
+            main.show()
+            main.raise()
+            main.requestActivate()
+        }
+        function onQuitRequested() { main.quit() }
     }
 
     Component {
@@ -67,14 +129,13 @@ ApplicationWindow {
     }
 
     menuBar: MenuBar {
-        Menu {
+        AppMenu {
             title: qsTr("&File")
             IconAction { iconName: "file-plus"; text: qsTr("&New Patch"); shortcut: StandardKey.New; onTriggered: main.newPatch() }
             IconAction { iconName: "folder-open"; text: qsTr("&Open…"); shortcut: StandardKey.Open; onTriggered: openDialog.open() }
-            Menu {
+            AppMenu {
                 title: qsTr("&Examples")
-                icon.source: "icons/book-open.svg"
-                icon.color: palette.windowText
+                iconName: "book-open"
                 // Projects: a folder with main.qd, its own QML nodes and abstractions.
                 Repeater {
                     model: Qure.examples.filter(e => e.group === "projects")
@@ -87,10 +148,9 @@ ApplicationWindow {
                     }
                 }
                 MenuSeparator {}
-                Menu {
+                AppMenu {
                     title: qsTr("&Basics")
-                    icon.source: "icons/graduation-cap.svg"
-                    icon.color: palette.windowText
+                    iconName: "graduation-cap"
                     Repeater {
                         model: Qure.examples.filter(e => e.group === "basics")
                         MenuItem {
@@ -104,18 +164,17 @@ ApplicationWindow {
                 }
             }
             MenuSeparator {}
-            IconAction { iconName: "log-out"; text: qsTr("&Quit"); shortcut: StandardKey.Quit; onTriggered: Qt.quit() }
+            IconAction { iconName: "log-out"; text: qsTr("&Quit"); shortcut: StandardKey.Quit; onTriggered: main.quit() }
         }
-        Menu {
+        AppMenu {
             title: qsTr("&Media")
             IconAction { iconName: "power"; text: qsTr("DSP &On"); shortcut: "Ctrl+/"; onTriggered: Qure.dsp = true }
             IconAction { iconName: "power-off"; text: qsTr("DSP O&ff"); shortcut: "Ctrl+."; onTriggered: Qure.dsp = false }
             MenuSeparator {}
-            Menu {
+            AppMenu {
                 id: outputMenu
                 title: qsTr("Audio &Output")
-                icon.source: "icons/audio-lines.svg"
-                icon.color: palette.windowText
+                iconName: "audio-lines"
                 Repeater {
                     model: Qure.playbackDevices
                     MenuItem {
@@ -129,11 +188,12 @@ ApplicationWindow {
             IconAction { iconName: "speaker"; text: qsTr("Default Audio Device"); onTriggered: Qure.restartAudio(-1, -1) }
             IconAction { iconName: "refresh-cw"; text: qsTr("Rescan Devices"); onTriggered: Qure.refreshDevices() }
         }
-        Menu {
+        AppMenu {
             title: qsTr("&View")
             IconAction { iconName: "moon"; text: qsTr("&Dark Theme"); checkable: true; checked: Qure.darkTheme; onTriggered: Qure.darkTheme = checked }
             IconAction { iconName: "eraser"; text: qsTr("&Clear Console"); shortcut: "Ctrl+Shift+L"; onTriggered: Qure.console.clear() }
         }
+        WindowMenu {}
     }
 
     header: ToolBar {

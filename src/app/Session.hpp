@@ -102,6 +102,10 @@ public:
     Q_INVOKABLE QString helpFor(const QString& className) const;
     /// Asks QML to show a window for `canvas` (subpatch double-click).
     Q_INVOKABLE void openCanvas(CanvasRef* canvas) { emit canvasOpenRequested(canvas); }
+    /// Asks QML to bring the main window (console) to the front.
+    Q_INVOKABLE void showMainWindow() { emit mainWindowRequested(); }
+    /// Asks QML to quit (after asking about unsaved patches).
+    Q_INVOKABLE void requestQuit() { emit quitRequested(); }
 
     void commit();
     void postInfo(const QString& text) { console_.append(ConsoleModel::Info, text); }
@@ -116,6 +120,8 @@ signals:
     void devicesChanged();
     void statsChanged();
     void canvasOpenRequested(CanvasRef* canvas);
+    void mainWindowRequested();
+    void quitRequested();
     /// Fired once per pump tick; views use it to poll snapshots.
     void frame();
 

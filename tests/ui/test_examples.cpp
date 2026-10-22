@@ -7,6 +7,8 @@
 #include "CanvasView.hpp"
 #include "ConsoleModel.hpp"
 #include "PatchDocument.hpp"
+#include "Plan.hpp"
+#include "Runtime.hpp"
 #include "Session.hpp"
 
 #include <QQmlApplicationEngine>
@@ -168,6 +170,20 @@ private slots:
         const QPoint handle = at(QPointF(hx, adsr->y + 14));
         drag(handle, handle + QPoint(30, 0));
         QVERIFY(arg(*adsr, 0) > attack + 50);
+    }
+
+    void closingTheWindowStopsThePatch() {
+        open(QStringLiteral("euclidean-ambient/main.qd"));
+        session_->setDsp(true);
+        QTest::qWait(300);
+        QVERIFY(!session_->runtime().patches().empty());
+        window_->close();
+        QTRY_VERIFY2(session_->runtime().patches().empty(), "the document stayed open");
+        doc_ = nullptr;
+        const Plan* plan = session_->runtime().engine().latestPlan();
+        QVERIFY(plan);
+        QCOMPARE(plan->steps.size(), std::size_t{0});
+        session_->setDsp(false);
     }
 
     void euclidRingDragAddsHits() {

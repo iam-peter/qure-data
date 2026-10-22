@@ -75,14 +75,15 @@ ApplicationWindow {
 
     // ---- menus ----------------------------------------------------------
     menuBar: MenuBar {
-        Menu {
+        AppMenu {
             title: qsTr("&File")
             IconAction { iconName: "save"; text: qsTr("&Save"); shortcut: StandardKey.Save; onTriggered: win.save() }
             IconAction { iconName: "save-all"; text: qsTr("Save &As…"); shortcut: StandardKey.SaveAs; onTriggered: saveDialog.open() }
             MenuSeparator {}
             IconAction { iconName: "x"; text: qsTr("&Close"); shortcut: StandardKey.Close; onTriggered: win.close() }
+            IconAction { iconName: "log-out"; text: qsTr("&Quit"); shortcut: StandardKey.Quit; onTriggered: Qure.requestQuit() }
         }
-        Menu {
+        AppMenu {
             title: qsTr("&Edit")
             IconAction {
                 iconName: "undo-2"
@@ -115,7 +116,7 @@ ApplicationWindow {
             }
             IconAction { iconName: "square-arrow-out-up-right"; text: qsTr("&Open Subpatch"); shortcut: "Ctrl+Return"; onTriggered: view.openSelected() }
         }
-        Menu {
+        AppMenu {
             title: qsTr("&Put")
             IconAction { iconName: "square"; text: qsTr("&Object"); shortcut: "Ctrl+1"; onTriggered: view.placeBox("object") }
             IconAction { iconName: "message-square"; text: qsTr("&Message"); shortcut: "Ctrl+2"; onTriggered: view.placeBox("message") }
@@ -139,18 +140,19 @@ ApplicationWindow {
             IconAction { iconName: "crosshair"; text: qsTr("&XY Pad"); onTriggered: view.placeBox("object", "xypad 120", true) }
             IconAction { iconName: "activity"; text: qsTr("Sco&pe~"); onTriggered: view.placeBox("object", "scope~ 512", true) }
         }
-        Menu {
+        AppMenu {
             title: qsTr("&View")
             IconAction { iconName: "zoom-in"; text: qsTr("Zoom &In"); shortcut: StandardKey.ZoomIn; onTriggered: view.zoomBy(1.25) }
             IconAction { iconName: "zoom-out"; text: qsTr("Zoom &Out"); shortcut: StandardKey.ZoomOut; onTriggered: view.zoomBy(0.8) }
             IconAction { iconName: "scan"; text: qsTr("&Actual Size"); shortcut: "Ctrl+0"; onTriggered: view.resetZoom() }
             IconAction { iconName: "maximize"; text: qsTr("&Fit Patch"); shortcut: "Ctrl+Shift+F"; onTriggered: view.fitToView() }
         }
-        Menu {
+        AppMenu {
             title: qsTr("&Media")
             IconAction { iconName: "power"; text: qsTr("DSP &On"); shortcut: "Ctrl+/"; onTriggered: Qure.dsp = true }
             IconAction { iconName: "power-off"; text: qsTr("DSP O&ff"); shortcut: "Ctrl+."; onTriggered: Qure.dsp = false }
         }
+        WindowMenu { current: win.doc }
     }
 
     // ---- canvas ---------------------------------------------------------
@@ -188,7 +190,7 @@ ApplicationWindow {
         }
     }
 
-    Menu {
+    AppMenu {
         id: contextMenu
         property bool onBox: false
         IconAction { iconName: "square-arrow-out-up-right"; text: qsTr("Open"); enabled: contextMenu.onBox; onTriggered: view.openSelected() }
