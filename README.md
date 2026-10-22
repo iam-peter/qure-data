@@ -1,8 +1,26 @@
-# Qure Data
+<p align="center">
+  <img src="src/app/logo/qure.svg" width="128" height="128" alt="">
+</p>
 
-A reimplementation of [Pure Data](https://github.com/pure-data/pure-data) in
-C++23 with a Qt Quick interface. Its patches are `.qd` files in Pd's own
-format, so it opens Pd's `.pd` files too, and can save them back as `.pd`.
+<h1 align="center">Qure Data</h1>
+
+<p align="center">
+  <a href="https://iam-peter.github.io/qure-data/">Website</a> ·
+  <a href="https://github.com/iam-peter/qure-data/releases/tag/nightly">Nightly downloads</a> ·
+  <a href="examples/README.md">Examples</a> ·
+  <a href="docs/VISUALS.md">Visuals</a>
+</p>
+
+Visual programming for audio and graphics, in the tradition of
+[Pure Data](https://github.com/pure-data/pure-data) and Max/MSP: boxes of
+objects connected by patch cords, changed while they run. Qure Data is
+written in C++23 with a Qt Quick interface. It opens Pd's `.pd` patches and
+saves its own as `.qd` in the same format; its engine never locks the audio
+thread, its canvas is drawn on the GPU, its GUI nodes are QML components
+anyone can write, and its `gfx.*` objects make real-time graphics like
+Jitter or GEM.
+
+![The drum machine example: a step grid and drum pads written in QML, knobs, a scope and the patch that plays four synthesized voices](docs/screenshots/drum-machine.png)
 
 * **Engine:** lock-free and allocation-free on the audio thread. Patch edits
   are compiled into immutable *plans* and swapped in atomically, so editing
@@ -19,6 +37,21 @@ format, so it opens Pd's `.pd` files too, and can save them back as `.pd`.
 * **Nodes:** GUI nodes are QML. Sliders, toggles, knobs, a keyboard, a scope
   and an XY pad are each one `.qml` file, and a new node can be QML only,
   with no C++ (see [docs/WRITING_FRONTENDS.md](docs/WRITING_FRONTENDS.md)).
+
+## Visuals
+
+The `gfx.*` objects turn a patch into real-time graphics on the GPU.
+Texture cords (purple) join shaders, QML scenes, feedback and sound as
+textures into an output window. An effect is a single GLSL function,
+recompiled every time you save it, and a whole animated QML scene is one
+box. See [docs/VISUALS.md](docs/VISUALS.md).
+
+<p>
+  <img src="docs/screenshots/vj-mixer.png" width="49%" alt="The VJ mixer example: kaleidoscoped plasma crossfaded with an animated QML title, through a CRT shader">
+  <img src="docs/screenshots/audio-visuals.png" width="49%" alt="The audio visuals example: a synth's waveform with feedback trails behind rings that pulse with its level">
+</p>
+
+![The VJ mixer patch: two channels of shaders and a QML scene, a crossfader, feedback, hue and a CRT shader into a window, joined by purple texture cords](docs/screenshots/vj-mixer-patch.png)
 
 ## Download
 
@@ -79,6 +112,9 @@ for your own (see [examples/README.md](examples/README.md)):
 * **Audio visuals**: a small synth drives GPU visuals – its waveform as a
   texture, a QML scene you can click, feedback and the project's own
   shader.
+* **VJ mixer**: two visual channels and a crossfader, with a beat, an
+  animated QML title, a kaleidoscope and a CRT shader – graphics only, no
+  audio needed.
 
 ## Tests
 

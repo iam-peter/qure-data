@@ -94,6 +94,17 @@ Item {
 }
 ```
 
+To react to every message (a bang, say), connect to `node.received`; set
+`ignoreUnknownSignals` because `node` arrives just after the scene is made:
+
+```qml
+Connections {
+    target: node
+    ignoreUnknownSignals: true
+    function onReceived(inlet, selector, args) { if (selector === "bang") flash.restart() }
+}
+```
+
 Anything Qt Quick can draw works – including Qt Quick 3D when that module
 is installed.
 

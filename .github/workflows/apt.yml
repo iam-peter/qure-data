@@ -61,7 +61,8 @@ jobs:
           mkdir site
           cp pages/index.html src/app/logo/qure.svg docs/screenshots/drum-machine.png \
             docs/screenshots/wavetable-synth.png docs/screenshots/euclidean-ambient.png \
-            docs/screenshots/audio-visuals.png site/
+            docs/screenshots/audio-visuals.png docs/screenshots/vj-mixer.png \
+            docs/screenshots/vj-mixer-patch.png site/
 
       - name: Repository
         env:

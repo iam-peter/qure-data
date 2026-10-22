@@ -128,13 +128,21 @@ TEST_CASE("the audio-visuals example loads and plays", "[visuals][examples]") {
     CHECK(peak > 0.02f);
 }
 
-TEST_CASE("the audio-visuals example round-trips through the writer", "[visuals][examples]") {
-    Harness h;
-    const auto file = std::filesystem::path(QURE_EXAMPLES_DIR) / "audio-visuals" / "main.qd";
-    std::ifstream in(file);
-    std::stringstream ss;
-    ss << in.rdbuf();
-    auto r = h.rt.openPatch(file);
-    REQUIRE(r);
-    CHECK(writePatch(**r) == ss.str());
+TEST_CASE("the graphics examples load and round-trip through the writer", "[visuals][examples]") {
+    for (const char* name : {"audio-visuals", "vj-mixer"}) {
+        INFO(name);
+        Harness h;
+        const auto file = std::filesystem::path(QURE_EXAMPLES_DIR) / name / "main.qd";
+        std::ifstream in(file);
+        std::stringstream ss;
+        ss << in.rdbuf();
+        auto r = h.rt.openPatch(file);
+        REQUIRE(r);
+        for (const auto& b : (*r)->boxes()) {
+            INFO(b->displayText());
+            CHECK_FALSE(b->broken());
+        }
+        CHECK(h.rt.compileWarnings().empty());
+        CHECK(writePatch(**r) == ss.str());
+    }
 }

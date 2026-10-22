@@ -135,8 +135,20 @@
   <h2>Visuals</h2>
   <p>The <code>gfx.*</code> objects turn a patch into real-time graphics, like Max&rsquo;s Jitter or Pd&rsquo;s GEM.
     An effect is one GLSL function, recompiled every time you save it; a whole QML scene is one box.</p>
-  <img class="shot" src="audio-visuals.png" width="640" height="360" loading="lazy"
-       alt="The audio visuals example: a synth's waveform drawn as glowing lines with feedback trails, behind coloured rings that pulse with its level">
+  <div class="gallery">
+    <figure>
+      <img src="vj-mixer.png" width="640" height="360" loading="lazy"
+           alt="The VJ mixer example: kaleidoscoped plasma crossfaded with an animated QML title, through a CRT shader">
+      <figcaption>The VJ mixer: a QML title over a kaleidoscope, through the project&rsquo;s CRT shader.</figcaption>
+    </figure>
+    <figure>
+      <img src="audio-visuals.png" width="640" height="360" loading="lazy"
+           alt="The audio visuals example: a synth's waveform drawn as glowing lines with feedback trails, behind coloured rings that pulse with its level">
+      <figcaption>Audio visuals: a synth&rsquo;s waveform as a texture, with feedback trails.</figcaption>
+    </figure>
+  </div>
+  <img class="shot" src="vj-mixer-patch.png" width="980" height="730" loading="lazy"
+       alt="The VJ mixer patch: two channels of shaders and a QML scene, a crossfader, feedback, hue and a CRT shader into a window, joined by purple texture cords">
 
   <h2>Debian and Ubuntu</h2>
   <p>The APT repository brings Qure Data with its own Qt, for Ubuntu 22.04,

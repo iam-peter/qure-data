@@ -99,6 +99,7 @@ private slots:
         QTest::newRow("wavetable synth") << QStringLiteral("wavetable-synth/main.qd") << 3 << true;
         QTest::newRow("euclidean ambient") << QStringLiteral("euclidean-ambient/main.qd") << 4 << true;
         QTest::newRow("audio visuals") << QStringLiteral("audio-visuals/main.qd") << 3 << false;
+        QTest::newRow("vj mixer") << QStringLiteral("vj-mixer/main.qd") << 6 << false;
     }
 
     void opensCleanly() {

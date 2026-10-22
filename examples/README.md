@@ -80,6 +80,21 @@ patch; click in it to change the synth's speed and pitch.
   and it is recompiled and swapped in.
 - Sliders mix the layers, set the trail length and rotate the hue.
 
+## VJ mixer
+
+Graphics only: it runs with DSP off. Two channels go through a crossfader
+into a window:
+
+- **Channel A:** `[gfx.shader plasma]` through `[gfx.shader kaleido]`.
+  The radio buttons set the number of segments.
+- **Channel B:** `[gfx.qml Title.qml]`, an animated Qt Quick title.
+  Every beat of the `[metro]` reaches it as a bang (`node.received`):
+  the words jump and a ring expands. The message boxes change the words
+  through `node.params.text`.
+- **Master chain:** `[gfx.feedback]` for trails, a hue knob, and
+  `crt.frag`, this project's own scanline effect.
+- **Auto:** "auto" glides the crossfader from side to side with `[line]`.
+
 ## Basics
 
 Single-file patches: a sine with sliders, an FM keyboard synth, and a step
