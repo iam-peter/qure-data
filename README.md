@@ -15,6 +15,26 @@ C++23 with a Qt Quick interface. It opens and saves ordinary `.pd` files.
   and an XY pad are each one `.qml` file, and a new node can be QML only,
   with no C++ (see [docs/WRITING_FRONTENDS.md](docs/WRITING_FRONTENDS.md)).
 
+## Download
+
+Every night with new commits, the
+[nightly release](https://github.com/iam-peter/qure-data/releases/tag/nightly)
+is rebuilt for Linux (an AppImage and a `.deb`), Windows (a zip) and macOS
+(a disk image). The macOS app isn't signed: open it with a right click and
+Open the first time.
+
+On Debian and Ubuntu, Qure Data can come from its APT repository instead,
+which brings its own Qt:
+
+```bash
+sudo curl -fsSLo /usr/share/keyrings/qure-data-archive-keyring.asc https://iam-peter.github.io/qure-data/key.asc
+echo "deb [signed-by=/usr/share/keyrings/qure-data-archive-keyring.asc] https://iam-peter.github.io/qure-data/apt stable main" | sudo tee /etc/apt/sources.list.d/qure-data.list
+sudo apt update && sudo apt install qure-data
+```
+
+Put `nightly` in place of `stable` for the nightly builds. The start page
+is at [iam-peter.github.io/qure-data](https://iam-peter.github.io/qure-data/).
+
 ## Build
 
 Requirements: GCC 14 (or another C++23 compiler), CMake ≥ 3.25, Ninja, and
@@ -29,7 +49,7 @@ cmake --preset default
 cmake --build build/default
 ```
 ```bash
-./build/default/src/app/qure
+./build/default/bin/qure
 ```
 
 The preset expects Qt in `~/Qt/6.12.0/gcc_64`. Change `CMAKE_PREFIX_PATH` in
@@ -80,6 +100,22 @@ Ctrl+D duplicate, Ctrl+/ and Ctrl+. DSP on and off. Drag from an outlet to
 connect. Ctrl+wheel zooms; middle-drag or wheel pans. Placing an object
 while one box is selected puts the new one below it and connects them, as
 Pd's autopatching does.
+
+## Releases
+
+GitHub Actions does the releasing, as in
+[guckste](https://github.com/iam-peter/guckste):
+
+* `nightly.yml` builds and tests on Linux, Windows and macOS every night
+  with new commits (or by hand). It replaces the `nightly` pre-release with
+  an AppImage, a `.deb`, a Windows zip and a macOS disk image.
+* `promote.yml` (run by hand with a version such as `0.2.0`) turns the
+  current nightly into the release `v0.2.0` with the same files.
+* `apt.yml` publishes the start page (`pages/`) and a signed APT repository
+  with a `stable` and a `nightly` channel on GitHub Pages. It runs after
+  both and needs the `APT_SIGNING_KEY` secret (an armored private GPG key).
+
+The packaging scripts are in `packaging/deb/`.
 
 ## Documentation
 

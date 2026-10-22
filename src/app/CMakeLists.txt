@@ -59,3 +59,20 @@ target_link_libraries(qure_gui
 qt_add_executable(qure main.cpp)
 target_compile_definitions(qure PRIVATE QURE_VERSION="${PROJECT_VERSION}")
 target_link_libraries(qure PRIVATE qure_gui qure_guiplugin qure::options)
+set_target_properties(qure PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_BUNDLE_NAME "Qure Data"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.iam-peter.qure-data"
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in)
+
+include(GNUInstallDirs)
+install(TARGETS qure
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+if(UNIX AND NOT APPLE)
+    install(FILES logo/qure.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES logo/qure.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+endif()

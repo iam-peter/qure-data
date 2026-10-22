@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qure Data</title>
+<meta name="description" content="Visual programming for audio, compatible with Pure Data patches: a lock-free C++23 engine, a GPU-drawn patch editor and GUI nodes written in QML.">
+<link rel="icon" href="qure.svg" type="image/svg+xml">
+<style>
+  :root {
+    --bg: #f7f9fb;
+    --fg: #151b24;
+    --muted: #5a6573;
+    --card: #ffffff;
+    --border: #dde3ea;
+    --code-bg: #0f1520;
+    --code-fg: #dfe9f7;
+    --accent: #2b7cf0;
+    --accent-strong: #2b7cf0;
+    --gradient: linear-gradient(135deg, #2fd4b0 0%, #2b7cf0 55%, #8a3df0 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1218;
+      --fg: #e6edf5;
+      --muted: #94a1b2;
+      --card: #151c25;
+      --border: #26313e;
+      --code-bg: #070b10;
+      --accent: #6ea8ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+  }
+  a { color: var(--accent); }
+  main { max-width: 920px; margin: 0 auto; padding: 0 16px 64px; }
+
+  header { text-align: center; padding: 64px 0 40px; }
+  header img { width: 112px; height: 112px; filter: drop-shadow(0 10px 24px rgb(43 124 240 / 0.35)); }
+  h1 { font-size: 3rem; margin: 16px 0 4px; letter-spacing: -0.02em; }
+  .tagline { color: var(--muted); font-size: 1.15rem; max-width: 640px; margin: 0 auto 28px; }
+
+  .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .button {
+    display: inline-block; padding: 10px 20px; border-radius: 10px;
+    font-weight: 600; text-decoration: none; border: 1px solid var(--border);
+    color: var(--fg); background: var(--card);
+  }
+  .button.primary { background: var(--gradient); color: #fff; border-color: transparent; }
+  .button:hover { filter: brightness(1.06); }
+
+  .shot {
+    display: block; width: 100%; height: auto; margin: 8px 0 48px;
+    border-radius: 12px; border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgb(0 0 0 / 0.12);
+  }
+
+  h2 { font-size: 1.5rem; margin: 40px 0 8px; }
+  p { margin: 8px 0; }
+  .note { color: var(--muted); font-size: 0.95rem; }
+
+  .code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0 8px; }
+  .channels { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .code-head button {
+    font: inherit; font-size: 0.95rem; padding: 6px 16px; border: 0; cursor: pointer;
+    background: var(--card); color: var(--muted);
+  }
+  .channels button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+  .copy { border: 1px solid var(--border) !important; border-radius: 8px; color: var(--fg) !important; }
+
+  .code { background: var(--code-bg); color: var(--code-fg); border-radius: 10px; }
+  .code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font: 13.5px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+  .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0 8px; }
+  .gallery figure { margin: 0; }
+  .gallery img {
+    display: block; width: 100%; height: auto; border-radius: 10px;
+    aspect-ratio: 16 / 10; object-fit: cover; object-position: top left;
+    border: 1px solid var(--border); box-shadow: 0 12px 30px rgb(0 0 0 / 0.1);
+  }
+  .gallery figcaption { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+  @media (max-width: 640px) { .gallery { grid-template-columns: 1fr; } }
+
+  ul.features { padding-left: 20px; }
+  ul.features li { margin: 6px 0; }
+  footer { text-align: center; color: var(--muted); font-size: 0.9rem; padding-top: 48px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="qure.svg" alt="">
+    <h1>Qure Data</h1>
+    <p class="tagline">Visual programming for audio that opens your Pure Data patches:
+      a C++23 engine that never locks the audio thread, a patch editor drawn on
+      the GPU, and GUI nodes you write in QML.</p>
+    <div class="buttons">
+      <a class="button primary" href="https://github.com/iam-peter/qure-data/releases/latest">Download</a>
+      <a class="button" href="https://github.com/iam-peter/qure-data/releases/tag/nightly">Nightly</a>
+      <a class="button" href="https://github.com/iam-peter/qure-data">Source on GitHub</a>
+    </div>
+  </header>
+
+  <img class="shot" src="drum-machine.png" width="1000" height="930"
+       alt="The drum machine example: a QML step grid with four coloured rows, four drum pads, knobs for tempo and volume, and the patch that plays them">
+
+  <h2>What it does</h2>
+  <ul class="features">
+    <li>Opens and saves <code>.pd</code> files &ndash; subpatches, abstractions with <code>$0</code> and arguments, arrays, GUI objects &ndash; with about 175 objects of Pd vanilla, from <code>osc~</code> and <code>vline~</code> to <code>expr</code>.</li>
+    <li>Edits are compiled into a plan and swapped in between two audio blocks: changing a patch never blocks or clicks the sound. Subpatch inlets and outlets cost nothing at run time, and signal buffers are reused.</li>
+    <li>Boxes and cords are drawn by shaders in a few batched draw calls, so even huge patches pan and zoom smoothly. Pd&rsquo;s keys work: Ctrl+1 for an object, autopatching, drag from an outlet to connect.</li>
+    <li>Every GUI node &ndash; slider, toggle, keyboard, scope &ndash; is one QML file. A project can bring its own nodes in a <code>nodes/</code> folder next to the patch, without compiling anything.</li>
+    <li>Audio through PipeWire, PulseAudio, JACK or ALSA on Linux, Core Audio on macOS and WASAPI on Windows.</li>
+  </ul>
+
+  <div class="gallery">
+    <figure>
+      <img src="wavetable-synth.png" width="980" height="790" loading="lazy"
+           alt="The wavetable synth example: a keyboard, a wave editor drawn with the mouse, the array it writes, and an ADSR envelope with draggable handles">
+      <figcaption>Draw a waveform and drag an envelope &ndash; two QML nodes of the wavetable synth.</figcaption>
+    </figure>
+    <figure>
+      <img src="euclidean-ambient.png" width="1000" height="890" loading="lazy"
+           alt="The euclidean ambient example: three euclidean rhythm rings, an XY pad and a level plot over the patch that plays FM bells into a delay">
+      <figcaption>Euclidean rhythm rings drive FM bells into a feedback delay.</figcaption>
+    </figure>
+  </div>
+
+  <h2>Debian and Ubuntu</h2>
+  <p>The APT repository brings Qure Data with its own Qt, for Ubuntu 22.04,
+    Debian 12 and newer.</p>
+  <div class="code-head">
+    <div class="channels" role="group" aria-label="Channel">
+      <button type="button" data-channel="stable" aria-pressed="true">Stable</button>
+      <button type="button" data-channel="nightly" aria-pressed="false">Nightly</button>
+    </div>
+    <button type="button" class="copy" data-copy="apt">Copy</button>
+  </div>
+  <div class="code"><pre id="apt">sudo curl -fsSLo /usr/share/keyrings/qure-data-archive-keyring.asc https://iam-peter.github.io/qure-data/key.asc
+echo "deb [signed-by=/usr/share/keyrings/qure-data-archive-keyring.asc] https://iam-peter.github.io/qure-data/apt <span id="channel">stable</span> main" | sudo tee /etc/apt/sources.list.d/qure-data.list
+sudo apt update &amp;&amp; sudo apt install qure-data</pre></div>
+  <p class="note">The repository is signed with the key
+    <code>9810 7265 8504 FEAB 1F08 D916 3958 AB85 EBE5 91B0</code>.</p>
+
+  <h2>Other systems</h2>
+  <p>Each <a href="https://github.com/iam-peter/qure-data/releases/latest">release</a> has an
+    AppImage for any Linux, a zip for Windows and a disk image for macOS.
+    The macOS app isn't signed: open it with a right click and Open the first
+    time, and allow it to use the microphone when macOS asks.</p>
+
+  <footer>
+    <a href="https://github.com/iam-peter/qure-data">github.com/iam-peter/qure-data</a>
+  </footer>
+</main>
+<script>
+  for (const button of document.querySelectorAll(".channels button")) {
+    button.addEventListener("click", () => {
+      for (const other of document.querySelectorAll(".channels button"))
+        other.setAttribute("aria-pressed", String(other === button));
+      document.getElementById("channel").textContent = button.dataset.channel;
+    });
+  }
+  for (const button of document.querySelectorAll("[data-copy]")) {
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(document.getElementById(button.dataset.copy).textContent);
+        button.textContent = "Copied";
+      } catch {
+        button.textContent = "Select and copy";
+      }
+      setTimeout(() => { button.textContent = "Copy"; }, 1500);
+    });
+  }
+</script>
+</body>
+</html>

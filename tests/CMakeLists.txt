@@ -10,6 +10,9 @@ add_executable(qure_tests
     test_examples.cpp
 )
 target_link_libraries(qure_tests PRIVATE qure::core Catch2::Catch2WithMain)
+# A console program (qt_standard_project_setup makes executables GUI apps
+# and bundles by default).
+set_target_properties(qure_tests PROPERTIES WIN32_EXECUTABLE FALSE MACOSX_BUNDLE FALSE)
 target_compile_definitions(qure_tests PRIVATE QURE_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
 
 include(Catch)

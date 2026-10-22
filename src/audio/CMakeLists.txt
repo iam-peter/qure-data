@@ -5,7 +5,10 @@ target_compile_definitions(miniaudio_impl PUBLIC
     MA_NO_ENCODING MA_NO_DECODING MA_NO_GENERATION MA_NO_RESOURCE_MANAGER MA_NO_NODE_GRAPH MA_NO_ENGINE)
 set_target_properties(miniaudio_impl PROPERTIES C_STANDARD 11 POSITION_INDEPENDENT_CODE ON)
 find_package(Threads REQUIRED)
-target_link_libraries(miniaudio_impl PUBLIC Threads::Threads ${CMAKE_DL_LIBS} m)
+target_link_libraries(miniaudio_impl PUBLIC Threads::Threads ${CMAKE_DL_LIBS})
+if(UNIX)
+    target_link_libraries(miniaudio_impl PUBLIC m)
+endif()
 
 add_library(qure_audio STATIC
     AudioDriver.cpp

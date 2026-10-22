@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Qure Data
+GenericName=Visual Audio Programming
+Comment=Patch audio and control objects together, compatible with Pure Data
+Exec=qure %F
+Icon=qure
+Terminal=false
+Categories=AudioVideo;Audio;Music;Development;
+Keywords=pd;pure data;patch;synthesizer;dsp;music;
+MimeType=text/x-puredata;
+StartupWMClass=qure

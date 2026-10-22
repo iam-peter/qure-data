@@ -1,0 +1,241 @@
+# Every night: build and test on Linux, Windows and macOS and replace the
+# nightly release with the new downloads. Nights without new commits are
+# skipped, a run by hand builds anyway.
+name: Nightly
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+env:
+  QT_VERSION: "6.11.3"
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.check.outputs.build }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - id: check
+        name: Anything new since the last nightly?
+        run: |
+          last=$(git rev-parse -q --verify "refs/tags/nightly^{commit}" || true)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$last" != "$GITHUB_SHA" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nothing new since $last"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  linux:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
+    # The oldest runner, an AppImage runs on systems at least as new. Its
+    # GCC is too old for C++23, so GCC 13 comes from the toolchain PPA and
+    # its C++ runtime is linked statically (QURE_STATIC_LIBSTDCXX).
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Dependencies
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y gcc-13 g++-13 ninja-build libgl1-mesa-dev libgl1-mesa-dri libxkbcommon-dev \
+            libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libfontconfig1 libfuse2 dpkg-dev \
+            xvfb xauth
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          modules: qtshadertools
+          cache: true
+
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -DQURE_STATIC_LIBSTDCXX=ON
+          cmake --build build
+
+      # The UI tests run under xvfb-run (ctest picks it up), never with sound
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-log-linux
+          path: build/Testing/Temporary/LastTest.log
+          retention-days: 7
+
+      - name: AppImage
+        run: |
+          base=https://github.com/linuxdeploy
+          wget -q $base/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -q $base/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy-*.AppImage
+          export APPIMAGE_EXTRACT_AND_RUN=1
+          export QMAKE="$QT_ROOT_DIR/bin/qmake"
+          # The app's QML and the example projects' nodes, for the imports
+          export QML_SOURCES_PATHS="$GITHUB_WORKSPACE/qml:$GITHUB_WORKSPACE/examples"
+          export LD_LIBRARY_PATH="$QT_ROOT_DIR/lib:$LD_LIBRARY_PATH"
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --executable build/bin/qure \
+            --desktop-file src/app/logo/qure.desktop --icon-file src/app/logo/qure.svg \
+            --plugin qt --output appimage
+          # Named after the desktop file's Name
+          mv Qure_Data-*.AppImage qure-data-linux-x64.AppImage
+
+      # A version after the one in CMake, rising with the commit time, so
+      # apt upgrades every nightly
+      - name: Debian package
+        run: |
+          base=$(sed -n 's/^CMAKE_PROJECT_VERSION:STATIC=//p' build/CMakeCache.txt)
+          stamp=$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d%H%M%S)
+          packaging/deb/build-deb.sh AppDir "$base+git$stamp.${GITHUB_SHA::7}" qure-data-linux-x64.deb
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qure-data-linux
+          path: |
+            qure-data-linux-x64.AppImage
+            qure-data-linux-x64.deb
+          retention-days: 1
+
+  windows:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v5
+
+      # Since 6.11 each Windows toolchain has its own folder in the Qt
+      # repository, aqt 3.3.0 doesn't know that yet but its master does
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
+          modules: qtshadertools
+          cache: true
+
+      - name: Build
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+          cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-log-windows
+          path: build/Testing/Temporary/LastTest.log
+          retention-days: 7
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory qure-data | Out-Null
+          Copy-Item build/bin/Release/qure.exe qure-data/
+          windeployqt --release --qmldir qml --qmldir examples qure-data/qure.exe
+          Compress-Archive -Path qure-data -DestinationPath qure-data-windows-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qure-data-windows
+          path: qure-data-windows-x64.zip
+          retention-days: 1
+
+  macos:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: mac
+          target: desktop
+          arch: clang_64
+          modules: qtshadertools
+          cache: true
+
+      - name: Build
+        run: |
+          # Apple silicon and Intel in one app, like the Qt it builds on
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+          cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-log-macos
+          path: build/Testing/Temporary/LastTest.log
+          retention-days: 7
+
+      - name: Disk image
+        run: |
+          macdeployqt build/bin/qure.app -qmldir="$GITHUB_WORKSPACE/qml" -qmldir="$GITHUB_WORKSPACE/examples" -dmg
+          mv build/bin/qure.dmg qure-data-macos.dmg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qure-data-macos
+          path: qure-data-macos.dmg
+          retention-days: 1
+
+  release:
+    needs: [linux, windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: qure-data-*
+          path: artifacts
+          merge-multiple: true
+
+      # One rolling pre-release, its tag moves to the commit it was built from
+      - name: Replace the nightly release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete nightly --cleanup-tag --yes || true
+          gh release create nightly artifacts/* --prerelease --target "$GITHUB_SHA" \
+            --title "Nightly $(date -u +%Y-%m-%d)" \
+            --notes "Built from $GITHUB_SHA. The macOS app isn't signed: open it with a right click and Open the first time, and allow it to use the microphone when macOS asks."
+
+  apt:
+    needs: release
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/apt.yml
+    secrets: inherit

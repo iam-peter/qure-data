@@ -9,11 +9,16 @@ find_program(XVFB_RUN xvfb-run)
 function(qure_add_ui_test name source)
     qt_add_executable(${name} ${source})
     target_link_libraries(${name} PRIVATE qure_gui qure_guiplugin qure::options Qt6::Test)
+    set_target_properties(${name} PROPERTIES WIN32_EXECUTABLE FALSE MACOSX_BUNDLE FALSE)
     if(XVFB_RUN)
         add_test(NAME ${name} COMMAND ${XVFB_RUN} -a -s "-screen 0 1280x900x24" $<TARGET_FILE:${name}>)
     else()
+        # Linux without Xvfb: offscreen. Windows and macOS (CI runners have a
+        # desktop session): the native platform, which the GPU shaders need.
         add_test(NAME ${name} COMMAND ${name})
-        set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+        if(UNIX AND NOT APPLE)
+            set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+        endif()
     endif()
     set_tests_properties(${name} PROPERTIES
         TIMEOUT 180

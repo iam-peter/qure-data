@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>Qure Data</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2fd4b0"/>
+      <stop offset="0.55" stop-color="#2b7cf0"/>
+      <stop offset="1" stop-color="#8a3df0"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="116" height="116" rx="26" fill="url(#bg)"/>
+  <!-- patch cords -->
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round">
+    <path d="M36 42 L36 64 Q36 70 44 74 L84 92"/>
+    <path d="M92 42 L92 58"/>
+  </g>
+  <!-- boxes -->
+  <g fill="#ffffff">
+    <rect x="22" y="26" width="34" height="18" rx="5"/>
+    <rect x="76" y="26" width="34" height="18" rx="5"/>
+    <rect x="70" y="86" width="40" height="18" rx="5"/>
+  </g>
+  <!-- a sine running through the lower-left box -->
+  <path d="M20 96 C 28 80, 36 80, 44 96 S 60 112, 66 96" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+  <rect x="80" y="54" width="24" height="10" rx="3" fill="#ffffff" fill-opacity="0.9"/>
+</svg>

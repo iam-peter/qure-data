@@ -18,6 +18,16 @@ option(QURE_BUILD_APP     "Build the Qt Quick application"           ON)
 option(QURE_BUILD_TESTS   "Build the unit tests"                     ON)
 option(QURE_NATIVE_ARCH   "Optimise DSP code for the build machine"  OFF)
 option(QURE_SANITIZE      "Build with address/UB sanitizers"         OFF)
+option(QURE_STATIC_LIBSTDCXX "Link libstdc++ statically (packages for older Linux)" OFF)
+
+# Executables in build/bin, like the installed layout.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# An installed qure finds the Qt it was built against.
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+# std::format of floating point needs to_chars, which macOS has from 13.3.
+if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 13.3)
+endif()
 
 include(cmake/CompilerOptions.cmake)
 include(cmake/Dependencies.cmake)

@@ -21,12 +21,14 @@ public:
     bool start() override {
         if (thread_.joinable())
             return true;
-        thread_ = std::jthread([this](std::stop_token stop) { run(stop); });
+        // A plain thread and flag: Apple's libc++ has no std::jthread yet.
+        stop_.store(false);
+        thread_ = std::thread([this] { run(); });
         return true;
     }
     void stop() override {
         if (thread_.joinable()) {
-            thread_.request_stop();
+            stop_.store(true);
             thread_.join();
         }
     }
@@ -34,14 +36,14 @@ public:
     [[nodiscard]] std::string description() const override { return "no audio device (timer)"; }
 
 private:
-    void run(std::stop_token stop) {
+    void run() {
         using clock = std::chrono::steady_clock;
         const auto& cfg = engine_.config();
         const auto block = std::chrono::duration<double>(cfg.blockSize / cfg.sampleRate);
         // Wake about every 5 ms and catch up on all due blocks.
         const auto wake = std::chrono::milliseconds(5);
         auto next = clock::now();
-        while (!stop.stop_requested()) {
+        while (!stop_.load()) {
             const auto now = clock::now();
             if (now - next > std::chrono::milliseconds(200))
                 next = now; // we were suspended; don't try to catch up
@@ -54,7 +56,8 @@ private:
     }
 
     Engine& engine_;
-    std::jthread thread_;
+    std::thread thread_;
+    std::atomic<bool> stop_{false};
 };
 
 // ---------------------------------------------------------------------------
