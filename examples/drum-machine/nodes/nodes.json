@@ -1,0 +1,9 @@
+{
+    "about": "Node pack of the drum-machine example. Qure Data loads nodes/nodes.json from a patch's folder before opening it, so a project can bring its own QML nodes.",
+    "nodes": [
+        { "class": "stepgrid", "qml": "StepGrid.qml", "inlets": 1, "outlets": 1, "loadArgs": true,
+          "size": [320, 88], "help": "16-step grid, one row per argument (a bit mask); outputs the masks" },
+        { "class": "pad", "qml": "TriggerPad.qml", "inlets": 1, "outlets": 1,
+          "size": [64, 64], "help": "drum pad: click to bang; flashes on input" }
+    ]
+}

@@ -44,8 +44,10 @@ private:
 /// messages to any inlet are forwarded to the GUI as `in <inlet> <selector>
 /// <args...>`, and the GUI emits `out <outlet> <atoms...>` to send. This is
 /// what lets a new GUI node (a keyboard, an XY pad...) be written in QML
-/// alone.
-std::unique_ptr<Object> makeFrontendObject(const ObjectArgs& args, int inlets, int outlets);
+/// alone. With `loadArgs`, the object sends its creation arguments out of
+/// outlet 0 when the patch loads, so state the front end saved there
+/// reaches the patch without the front end being shown.
+std::unique_ptr<Object> makeFrontendObject(const ObjectArgs& args, int inlets, int outlets, bool loadArgs = false);
 
 // Implemented in objects/*.cpp
 void registerControlObjects(ObjectRegistry&);

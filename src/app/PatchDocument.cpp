@@ -36,6 +36,12 @@ QString CanvasRef::title() const {
 
 bool CanvasRef::isRoot() const { return canvas_ && canvas_->isRoot(); }
 
+QSize CanvasRef::windowSize() const {
+    if (!canvas_)
+        return {};
+    return {canvas_->props.windowW, canvas_->props.windowH};
+}
+
 void CanvasRef::invalidate() {
     if (!canvas_)
         return;

@@ -53,11 +53,23 @@ Add an entry to a `nodes.json`:
 * `snapshots: true` makes `node.samples` follow the object's bulk data
   (scopes, arrays). Draw it with `WaveView { samples: node.samples }`, which
   runs on the GPU.
+* `loadArgs: true` (front-end-only classes) makes the engine object send
+  its creation arguments out of outlet 0 when the patch loads. Together
+  with `node.setArg()` this gives a node persistent state that reaches the
+  patch even if the node is never drawn: front ends exist only while
+  visible.
 * `aliases` lists alternative class names.
 
-User node packs are loaded from
-`~/.local/share/QureData/nodes/<pack>/nodes.json` at startup, so you can
-add nodes without recompiling. Abstractions (`.pd` files) go in
+Node packs are found in three places, and none needs recompiling:
+
+* `qml/nodes/nodes.json`: the built-in nodes, compiled into the app.
+* `~/.local/share/QureData/nodes/<pack>/nodes.json`: your own, loaded at
+  startup.
+* `nodes/nodes.json` **next to a patch**: a project's own nodes, loaded
+  before the patch opens. The [example projects](../examples/README.md)
+  work this way.
+
+Abstractions (`.pd` files) are found next to the patch, or in
 `~/.local/share/QureData/abstractions/`.
 
 ## The `node` API
@@ -80,7 +92,34 @@ add nodes without recompiling. Abstractions (`.pd` files) go in
 | `bang()` | signal: the object flashed (e.g. `bng`) |
 
 The `Qure` singleton exposes `Qure.theme` (colours that follow the light or
-dark theme), `Qure.dsp` and more.
+dark theme), `Qure.dsp` and more. For front ends that work on shared
+data:
+
+| Member | Meaning |
+|---|---|
+| `Qure.readArray(name)` | contents of an array (`[table]`, `[array define]`, graph array) |
+| `Qure.writeArray(name, offset, values)` | write values into it, through the engine |
+| `Qure.sendMessage("name sel args")` | send to a receive name, like `; name sel args` |
+
+## Patterns that work well
+
+The example projects show each of these in a few dozen lines of QML:
+
+* **State in the arguments, timing in the engine**
+  ([StepGrid.qml](../examples/drum-machine/nodes/StepGrid.qml),
+  [Euclid.qml](../examples/euclidean-ambient/nodes/Euclid.qml),
+  [Adsr.qml](../examples/wavetable-synth/nodes/Adsr.qml)). The node
+  edits parameters and sends them; the patch does the sample-accurate
+  work. GUI latency never affects the music.
+* **Editing engine data directly**
+  ([WaveDraw.qml](../examples/wavetable-synth/nodes/WaveDraw.qml)): the
+  array is the single source of truth, and the node reads it back.
+* **Animation from engine events**
+  ([TriggerPad.qml](../examples/drum-machine/nodes/TriggerPad.qml)):
+  `node.received` starts a QML animation.
+* **Display-only nodes**
+  ([Plotter.qml](../examples/euclidean-ambient/nodes/Plotter.qml)): keep a
+  little history in QML and draw it with `WaveView`.
 
 ## Things to keep in mind
 

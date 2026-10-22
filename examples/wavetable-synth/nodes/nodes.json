@@ -1,0 +1,9 @@
+{
+    "about": "Node pack of the wavetable-synth example (loaded from the patch's folder).",
+    "nodes": [
+        { "class": "wavedraw", "qml": "WaveDraw.qml", "inlets": 1, "outlets": 0,
+          "size": [256, 128], "help": "draw a waveform into an array: wavedraw <array>" },
+        { "class": "adsr", "qml": "Adsr.qml", "inlets": 1, "outlets": 1, "loadArgs": true,
+          "size": [240, 120], "help": "envelope editor: adsr A D S R, outputs A D S R" }
+    ]
+}

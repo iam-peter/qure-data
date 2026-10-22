@@ -28,6 +28,8 @@ QString frontendKey(const Box& box) {
 }
 
 bool FrontendRegistry::loadManifest(const QUrl& manifest, QString* error) {
+    if (manifests_.contains(manifest))
+        return true;
     const QString path = manifest.scheme() == QLatin1String("qrc") ? QLatin1Char(':') + manifest.path()
                                                                      : manifest.toLocalFile();
     QFile f(path);
@@ -43,6 +45,7 @@ bool FrontendRegistry::loadManifest(const QUrl& manifest, QString* error) {
             *error = QStringLiteral("%1: %2").arg(path, pe.errorString());
         return false;
     }
+    manifests_.insert(manifest);
     const QUrl base = manifest.adjusted(QUrl::RemoveFilename);
     for (const auto& v : doc.object().value(QStringLiteral("nodes")).toArray()) {
         const auto o = v.toObject();
@@ -59,6 +62,7 @@ bool FrontendRegistry::loadManifest(const QUrl& manifest, QString* error) {
         info.heightScale = o.value(QStringLiteral("heightScale")).toDouble(1);
         info.inlets = o.value(QStringLiteral("inlets")).toInt(-1);
         info.outlets = o.value(QStringLiteral("outlets")).toInt(-1);
+        info.loadArgs = o.value(QStringLiteral("loadArgs")).toBool(false);
         info.help = o.value(QStringLiteral("help")).toString();
         info.snapshots = o.value(QStringLiteral("snapshots")).toBool(false);
 
@@ -91,13 +95,15 @@ const FrontendInfo* FrontendRegistry::find(const Box& box) const {
     return key.isEmpty() ? nullptr : find(key);
 }
 
-void FrontendRegistry::registerEngineClasses(ObjectRegistry& registry) const {
-    for (const auto& info : infos_) {
+void FrontendRegistry::registerEngineClasses(ObjectRegistry& registry, std::size_t from) const {
+    for (std::size_t i = from; i < infos_.size(); ++i) {
+        const auto& info = infos_[i];
         if (info.inlets < 0 && info.outlets < 0)
             continue;
         const int ins = std::max(0, info.inlets), outs = std::max(0, info.outlets);
+        const bool loadArgs = info.loadArgs;
         registry.add(info.className.toStdString(),
-                     [ins, outs](const ObjectArgs& a) { return makeFrontendObject(a, ins, outs); },
+                     [ins, outs, loadArgs](const ObjectArgs& a) { return makeFrontendObject(a, ins, outs, loadArgs); },
                      info.help.toStdString());
     }
 }

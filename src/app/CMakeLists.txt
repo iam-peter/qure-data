@@ -17,12 +17,23 @@ add_library(qure::gui ALIAS qure_gui)
 
 set(QML_DIR ${PROJECT_SOURCE_DIR}/qml)
 file(GLOB QURE_QML RELATIVE ${QML_DIR} CONFIGURE_DEPENDS ${QML_DIR}/*.qml ${QML_DIR}/nodes/*.qml ${QML_DIR}/nodes/*.js)
-file(GLOB QURE_QML_RESOURCES RELATIVE ${QML_DIR} CONFIGURE_DEPENDS ${QML_DIR}/nodes/*.json ${QML_DIR}/examples/*.pd)
+file(GLOB QURE_QML_RESOURCES RELATIVE ${QML_DIR} CONFIGURE_DEPENDS ${QML_DIR}/nodes/*.json)
 foreach(f IN LISTS QURE_QML QURE_QML_RESOURCES)
     set_source_files_properties(${QML_DIR}/${f} PROPERTIES QT_RESOURCE_ALIAS ${f})
 endforeach()
 list(TRANSFORM QURE_QML PREPEND ${QML_DIR}/)
 list(TRANSFORM QURE_QML_RESOURCES PREPEND ${QML_DIR}/)
+
+# Example projects ship inside the binary and are copied to the user's data
+# directory when opened. Their QML nodes are plain resources: they are
+# loaded from disk at runtime like any user node pack, not compiled in.
+set(EXAMPLES_DIR ${PROJECT_SOURCE_DIR}/examples)
+file(GLOB_RECURSE QURE_EXAMPLES RELATIVE ${EXAMPLES_DIR} CONFIGURE_DEPENDS
+    ${EXAMPLES_DIR}/*.pd ${EXAMPLES_DIR}/*.qml ${EXAMPLES_DIR}/*.js ${EXAMPLES_DIR}/*.json)
+foreach(f IN LISTS QURE_EXAMPLES)
+    set_source_files_properties(${EXAMPLES_DIR}/${f} PROPERTIES QT_RESOURCE_ALIAS examples/${f})
+    list(APPEND QURE_QML_RESOURCES ${EXAMPLES_DIR}/${f})
+endforeach()
 
 qt_add_qml_module(qure_gui
     URI Qure

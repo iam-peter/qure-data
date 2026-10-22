@@ -99,9 +99,19 @@ bool containsDollarDigit(std::string_view s) {
     return false;
 }
 
-void appendEscaped(std::string& out, std::string_view s, bool escapeDollar) {
-    for (char c : s) {
-        if (c == ' ' || c == ';' || c == ',' || c == '\\' || (escapeDollar && c == '$') || c == '\t' || c == '\n')
+enum class Dollars {
+    Keep,        ///< dollar symbols on screen: `$1-foo` stays as is
+    BeforeDigit, ///< literal symbols on screen: only `$<digit>` would reparse as a dollar
+    All,         ///< in files, like Pd: every `$` is written `\\$`
+};
+
+void appendEscaped(std::string& out, std::string_view s, Dollars dollars) {
+    for (std::size_t i = 0; i < s.size(); ++i) {
+        const char c = s[i];
+        const bool escapeDollar =
+            c == '$' && (dollars == Dollars::All ||
+                         (dollars == Dollars::BeforeDigit && i + 1 < s.size() && s[i + 1] >= '0' && s[i + 1] <= '9'));
+        if (c == ' ' || c == ';' || c == ',' || c == '\\' || escapeDollar || c == '\t' || c == '\n')
             out += '\\';
         out += c;
     }
@@ -181,8 +191,12 @@ std::string formatAtoms(AtomSpan atoms, TextStyle style) {
         newline = false;
         switch (a.type()) {
         case Atom::Type::Float: out += formatFloat(a.asFloat()); break;
-        case Atom::Type::Symbol: appendEscaped(out, a.asSymbol().str(), true); break;
-        case Atom::Type::DollarSymbol: appendEscaped(out, a.asSymbol().str(), file); break;
+        case Atom::Type::Symbol:
+            appendEscaped(out, a.asSymbol().str(), file ? Dollars::All : Dollars::BeforeDigit);
+            break;
+        case Atom::Type::DollarSymbol:
+            appendEscaped(out, a.asSymbol().str(), file ? Dollars::All : Dollars::Keep);
+            break;
         case Atom::Type::Dollar:
             out += file ? "\\$" : "$";
             out += std::to_string(a.dollarIndex());

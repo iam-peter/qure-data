@@ -1,0 +1,9 @@
+{
+    "about": "Node pack of the euclidean-ambient example (loaded from the patch's folder).",
+    "nodes": [
+        { "class": "euclid", "qml": "Euclid.qml", "inlets": 1, "outlets": 1, "loadArgs": true,
+          "size": [120, 120], "help": "euclidean rhythm ring: euclid steps hits rotation hue" },
+        { "class": "plotter", "qml": "Plotter.qml", "inlets": 1, "outlets": 0,
+          "size": [240, 80], "widthArg": 0, "help": "scrolling plot: plotter length min max" }
+    ]
+}

@@ -110,3 +110,14 @@ TEST_CASE("frontend-only objects forward both ways", "[objects][gui]") {
     CHECK(n[1].asSymbol().str() == "list");     // selector
     CHECK(n[2].asFloat() == 64);
 }
+
+TEST_CASE("frontend-only objects can replay their arguments on load", "[objects][gui]") {
+    Harness h;
+    h.rt.registry().add("test-grid", [](const ObjectArgs& a) { return makeFrontendObject(a, 1, 1, true); });
+    h.open(R"(#N canvas 0 0 400 300 12;
+#X obj 10 10 test-grid 5 0 3;
+#X obj 10 40 print grid;
+#X connect 0 0 1 0;
+)");
+    CHECK(h.take() == Lines{"grid: 5 0 3"});
+}

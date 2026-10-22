@@ -30,6 +30,12 @@ ApplicationWindow {
         w.show()
     }
 
+    function openExample(path) {
+        const doc = Qure.openExample(path)
+        if (doc)
+            openCanvas(doc.root)
+    }
+
     function newPatch() {
         const doc = Qure.newPatch()
         if (doc)
@@ -66,16 +72,25 @@ ApplicationWindow {
             Action { text: qsTr("&New Patch"); shortcut: StandardKey.New; onTriggered: main.newPatch() }
             Action { text: qsTr("&Open…"); shortcut: StandardKey.Open; onTriggered: openDialog.open() }
             Menu {
-                title: qsTr("Open &Example")
+                title: qsTr("&Examples")
+                // Projects: a folder with main.pd, its own QML nodes and abstractions.
                 Repeater {
-                    model: Qure.examples
+                    model: Qure.examples.filter(e => e.group === "projects")
                     MenuItem {
-                        required property string modelData
-                        text: modelData.replace(/\.pd$/, "")
-                        onTriggered: {
-                            const doc = Qure.openExample(modelData)
-                            if (doc)
-                                main.openCanvas(doc.root)
+                        required property var modelData
+                        text: modelData.title
+                        onTriggered: main.openExample(modelData.path)
+                    }
+                }
+                MenuSeparator {}
+                Menu {
+                    title: qsTr("&Basics")
+                    Repeater {
+                        model: Qure.examples.filter(e => e.group === "basics")
+                        MenuItem {
+                            required property var modelData
+                            text: modelData.title
+                            onTriggered: main.openExample(modelData.path)
                         }
                     }
                 }

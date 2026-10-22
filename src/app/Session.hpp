@@ -44,7 +44,9 @@ class Session : public QObject {
     Q_PROPERTY(QStringList playbackDevices READ playbackDevices NOTIFY devicesChanged)
     Q_PROPERTY(QStringList captureDevices READ captureDevices NOTIFY devicesChanged)
     Q_PROPERTY(double cpuLoad READ cpuLoad NOTIFY statsChanged)
-    Q_PROPERTY(QStringList examples READ examples CONSTANT)
+    /// Shipped examples: [{ title, path, group }], path relative to the
+    /// examples root, e.g. "drum-machine/main.pd".
+    Q_PROPERTY(QVariantList examples READ examples CONSTANT)
 
 public:
     enum class Audio {
@@ -76,11 +78,19 @@ public:
     [[nodiscard]] QStringList playbackDevices() const { return playbackDevices_; }
     [[nodiscard]] QStringList captureDevices() const { return captureDevices_; }
     [[nodiscard]] double cpuLoad() const { return cpuLoad_; }
-    [[nodiscard]] QStringList examples() const;
+    [[nodiscard]] QVariantList examples() const;
 
     Q_INVOKABLE PatchDocument* newPatch();
     Q_INVOKABLE PatchDocument* openPatch(const QUrl& url);
-    Q_INVOKABLE PatchDocument* openExample(const QString& name);
+    /// Copies the example's project folder to the user's data directory
+    /// (refreshing it from the shipped version) and opens it from there, so
+    /// its abstractions and node pack resolve like in any project.
+    Q_INVOKABLE PatchDocument* openExample(const QString& path);
+    /// Front ends can read and write arrays ([table], [array define],
+    /// graph arrays) by name. Reads see the latest snapshot the engine
+    /// published; writes go to the engine like `; name offset values...`.
+    Q_INVOKABLE QList<float> readArray(const QString& name) const;
+    Q_INVOKABLE void writeArray(const QString& name, int offset, const QList<float>& values);
     Q_INVOKABLE void closeDocument(PatchDocument* doc);
     /// Sends a message typed in the console, e.g. "pd dsp 1" or "foo 42".
     Q_INVOKABLE void sendMessage(const QString& text);
@@ -110,6 +120,8 @@ private:
     void pump();
     void startAudio(int playback, int capture);
     void startSilent();
+    /// Loads `<dir>/nodes/nodes.json` (a project's own node pack), if any.
+    void loadProjectNodes(const QString& dir);
     void rebuildClassList();
     PatchDocument* adopt(Canvas& canvas);
 

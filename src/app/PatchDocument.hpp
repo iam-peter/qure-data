@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QObject>
 #include <QPointF>
+#include <QSize>
 #include <QUndoStack>
 #include <QUrl>
 #include <QtQml/qqmlregistration.h>
@@ -32,6 +33,8 @@ class CanvasRef : public QObject {
     Q_PROPERTY(bool valid READ valid NOTIFY validChanged)
     Q_PROPERTY(bool isRoot READ isRoot CONSTANT)
     Q_PROPERTY(PatchDocument* document READ document CONSTANT)
+    /// The window size stored in the patch (`#N canvas x y w h`).
+    Q_PROPERTY(QSize windowSize READ windowSize CONSTANT)
 
 public:
     CanvasRef(PatchDocument& doc, Canvas* canvas);
@@ -41,6 +44,7 @@ public:
     [[nodiscard]] QString title() const;
     [[nodiscard]] bool valid() const { return canvas_ != nullptr; }
     [[nodiscard]] bool isRoot() const;
+    [[nodiscard]] QSize windowSize() const;
     void invalidate();
     void retitle() { emit titleChanged(); }
 

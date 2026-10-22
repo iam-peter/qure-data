@@ -21,7 +21,8 @@
 | `src/core` | Engine, objects, document model, `.pd` I/O, compiler | C++23 standard library only |
 | `src/audio` | Drivers: miniaudio device, silent timer | core, miniaudio |
 | `src/app` | Qt Quick GUI (library `qure_gui`, QML module `Qure`) + `main.cpp` | core, audio, Qt |
-| `qml/` | Windows, editor, node front ends, examples | the `Qure` module |
+| `qml/` | Windows, editor, built-in node front ends | the `Qure` module |
+| `examples/` | Example projects (patch + abstractions + own QML nodes), bundled into the app | |
 | `tests/` | Catch2 engine tests, QtTest UI tests | |
 
 The core has no Qt dependency. It could run headless, as a plugin, or in

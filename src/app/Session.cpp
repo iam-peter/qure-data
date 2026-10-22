@@ -5,9 +5,12 @@
 
 #include "AudioDriver.hpp"
 #include "Runtime.hpp"
+#include "Table.hpp"
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <QJSEngine>
 #include <QQmlEngine>
 #include <QStandardPaths>
@@ -134,6 +137,9 @@ PatchDocument* Session::openPatch(const QUrl& url) {
     for (auto* d : std::as_const(documents_))
         if (d->fileUrl() == QUrl::fromLocalFile(path))
             return d;
+    // A project folder may bring its own QML nodes; they must be known
+    // before the patch's boxes are created.
+    loadProjectNodes(QFileInfo(path).absolutePath());
     auto r = runtime_->openPatch(std::filesystem::path(path.toStdString()));
     if (!r) {
         postError(QString::fromStdString(r.error()));
@@ -145,25 +151,147 @@ PatchDocument* Session::openPatch(const QUrl& url) {
     return adopt(**r);
 }
 
-static const QString kExampleDir = QStringLiteral(":/qt/qml/Qure/examples");
-
-QStringList Session::examples() const {
-    return QDir(kExampleDir).entryList({QStringLiteral("*.pd")}, QDir::Files, QDir::Name);
+void Session::loadProjectNodes(const QString& dir) {
+    const QString manifest = dir + QStringLiteral("/nodes/nodes.json");
+    if (!QFileInfo::exists(manifest))
+        return;
+    const auto before = frontends_.size();
+    QString error;
+    if (!frontends_.loadManifest(QUrl::fromLocalFile(manifest), &error)) {
+        postError(error);
+        return;
+    }
+    if (frontends_.size() == before)
+        return;
+    frontends_.registerEngineClasses(runtime_->registry(), before);
+    rebuildClassList();
+    postInfo(tr("loaded %n node(s) from %1", nullptr, static_cast<int>(frontends_.size() - before)).arg(manifest));
 }
 
-PatchDocument* Session::openExample(const QString& name) {
-    QFile f(kExampleDir + QLatin1Char('/') + name);
-    if (!f.open(QIODevice::ReadOnly)) {
-        postError(tr("no example named %1").arg(name));
+static const QString kExampleDir = QStringLiteral(":/qt/qml/Qure/examples");
+
+static QString prettyName(QString name) {
+    name.remove(QRegularExpression(QStringLiteral("^\\d+-")));
+    name.remove(QStringLiteral(".pd"));
+    name.replace(QLatin1Char('-'), QLatin1Char(' '));
+    if (!name.isEmpty())
+        name[0] = name[0].toUpper();
+    for (qsizetype i = 1; i < name.size(); ++i)
+        if (name[i - 1] == QLatin1Char(' '))
+            name[i] = name[i].toUpper();
+    return name;
+}
+
+QVariantList Session::examples() const {
+    QVariantList out;
+    const QDir root(kExampleDir);
+    for (const auto& dir : root.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name)) {
+        const QDir d(root.filePath(dir));
+        if (d.exists(QStringLiteral("main.pd"))) {
+            // A project: one entry for its main patch.
+            out << QVariantMap{{QStringLiteral("title"), prettyName(dir)},
+                               {QStringLiteral("path"), dir + QStringLiteral("/main.pd")},
+                               {QStringLiteral("group"), QStringLiteral("projects")}};
+            continue;
+        }
+        for (const auto& f : d.entryList({QStringLiteral("*.pd")}, QDir::Files, QDir::Name))
+            out << QVariantMap{{QStringLiteral("title"), prettyName(f)},
+                               {QStringLiteral("path"), dir + QLatin1Char('/') + f},
+                               {QStringLiteral("group"), dir}};
+    }
+    return out;
+}
+
+/// Copies a qrc directory tree to `target`, overwriting.
+static bool copyTree(const QString& from, const QString& target) {
+    if (!QDir().mkpath(target))
+        return false;
+    const QDir src(from);
+    for (const auto& e : src.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot)) {
+        const QString dest = target + QLatin1Char('/') + e.fileName();
+        if (e.isDir()) {
+            if (!copyTree(e.filePath(), dest))
+                return false;
+            continue;
+        }
+        QFile::remove(dest);
+        if (!QFile::copy(e.filePath(), dest))
+            return false;
+        // Resources are read-only; the copy is the user's to edit.
+        QFile::setPermissions(dest, QFile::ReadOwner | QFile::WriteOwner | QFile::ReadGroup | QFile::ReadOther);
+    }
+    return true;
+}
+
+PatchDocument* Session::openExample(const QString& path) {
+    const QString folder = path.section(QLatin1Char('/'), 0, 0);
+    const QString source = kExampleDir + QLatin1Char('/') + folder;
+    if (folder.isEmpty() || !QFileInfo(source).isDir()) {
+        postError(tr("no example named %1").arg(path));
         return nullptr;
     }
-    // Examples open as untitled copies; "Save As" puts them somewhere real.
-    auto r = runtime_->openPatchText(f.readAll().toStdString(), name.toStdString());
-    if (!r) {
-        postError(QString::fromStdString(r.error()));
+    const QString root = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/examples");
+    const QString file = root + QLatin1Char('/') + path;
+    for (auto* d : std::as_const(documents_))
+        if (d->fileUrl() == QUrl::fromLocalFile(file))
+            return d; // open already: don't overwrite it underneath
+    if (!copyTree(source, root + QLatin1Char('/') + folder)) {
+        postError(tr("cannot copy example to %1").arg(root));
         return nullptr;
     }
-    return adopt(**r);
+    return openPatch(QUrl::fromLocalFile(file));
+}
+
+QList<float> Session::readArray(const QString& name) const {
+    const std::string wanted = name.toStdString();
+    // The name is in the box text: `#X array NAME`, [table NAME], or
+    // [array define (-flags) NAME].
+    auto nameOf = [](const Box& b) -> std::optional<Symbol> {
+        const Canvas& env = b.canvas->environment();
+        auto expanded = [&](std::size_t i) -> std::optional<Symbol> {
+            if (i >= b.text.size() || b.text[i].isFloat())
+                return std::nullopt;
+            return expandDollarSymbol(b.text[i].asSymbol(), env.dollarZero(), env.arguments());
+        };
+        if (b.kind == BoxKind::Array)
+            return expanded(0);
+        const auto cls = b.className().str();
+        if (cls == "table")
+            return expanded(1);
+        if (cls == "array" && b.text.size() > 1 && b.text[1].asSymbol().str() == "define") {
+            std::size_t i = 2;
+            while (i < b.text.size() && b.text[i].isSymbol() && b.text[i].asSymbol().str().starts_with('-'))
+                i += b.text[i].asSymbol().str() == "-k" ? 1 : 3;
+            return expanded(i);
+        }
+        return std::nullopt;
+    };
+    std::function<const TableStorage*(const Canvas&)> find = [&](const Canvas& c) -> const TableStorage* {
+        for (const auto& b : c.boxes()) {
+            if (auto* t = dynamic_cast<const TableStorage*>(b->object.get()))
+                if (auto n = nameOf(*b); n && n->str() == wanted)
+                    return t;
+            if (b->child)
+                if (auto* t = find(*b->child))
+                    return t;
+        }
+        return nullptr;
+    };
+    for (const auto* d : documents_)
+        if (const auto* t = find(d->rootCanvas())) {
+            const auto data = t->tableSnapshot();
+            return QList<float>(data.begin(), data.end());
+        }
+    return {};
+}
+
+void Session::writeArray(const QString& name, int offset, const QList<float>& values) {
+    AtomVector atoms;
+    atoms.reserve(static_cast<std::size_t>(values.size()) + 1);
+    atoms.emplace_back(static_cast<double>(offset));
+    for (float v : values)
+        atoms.emplace_back(static_cast<double>(v));
+    runtime_->engine().sendToName(Symbol(name.toStdString()), sym::list(), atoms);
 }
 
 void Session::closeDocument(PatchDocument* doc) {

@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import QtQuick.Window
 import Qure
 
 ApplicationWindow {
@@ -11,8 +12,10 @@ ApplicationWindow {
     readonly property PatchDocument doc: canvasRef ? canvasRef.document : null
     property bool forceClose: false
 
-    width: 900
-    height: 640
+    // The size saved in the patch, within reason; menus and the status bar
+    // come on top of the canvas area Pd stores.
+    width: Math.max(480, Math.min(Screen.desktopAvailableWidth - 40, canvasRef ? canvasRef.windowSize.width : 900))
+    height: Math.max(360, Math.min(Screen.desktopAvailableHeight - 40, (canvasRef ? canvasRef.windowSize.height : 600) + 70))
     color: Qure.theme.background
     title: (doc && doc.modified ? "• " : "") + (canvasRef ? canvasRef.title : "") + (view.editMode ? qsTr("  [edit]") : "")
 

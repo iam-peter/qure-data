@@ -403,12 +403,24 @@ private:
 
 class FrontendObject final : public Object {
 public:
-    FrontendObject(const ObjectArgs& a, int inlets, int outlets) : Object(a), out_("out"), in_("in") {
+    FrontendObject(const ObjectArgs& a, int inlets, int outlets, bool loadArgs)
+        : Object(a), out_("out"), in_("in"), loadArgs_(loadArgs), args_(a.args.begin(), a.args.end()) {
         for (int i = 0; i < inlets; ++i)
             addInlet();
         for (int o = 0; o < outlets; ++o)
             addOutlet();
         buf_.reserve(32);
+    }
+
+    // State a front end keeps in its creation arguments (node.setArg) is
+    // replayed into the patch when it loads – even if the node is never
+    // shown, because the engine object does it, not the QML.
+    [[nodiscard]] bool wantsLoadbang() const override { return loadArgs_ && !args_.empty(); }
+    void loadbang() override {
+        if (args_[0].isSymbol())
+            outAnything(0, args_[0].asSymbol(), AtomSpan(args_).subspan(1));
+        else
+            outMessage(0, sym::list(), args_);
     }
 
     // The front end calls node.output(outlet, atoms) → "out outlet atoms...".
@@ -453,6 +465,8 @@ private:
     }
 
     Symbol out_, in_;
+    bool loadArgs_;
+    AtomVector args_;
     AtomVector buf_;
 };
 
@@ -462,8 +476,8 @@ private:
 namespace qure {
 using namespace objects;
 
-std::unique_ptr<Object> makeFrontendObject(const ObjectArgs& args, int inlets, int outlets) {
-    return std::make_unique<FrontendObject>(args, inlets, outlets);
+std::unique_ptr<Object> makeFrontendObject(const ObjectArgs& args, int inlets, int outlets, bool loadArgs) {
+    return std::make_unique<FrontendObject>(args, inlets, outlets, loadArgs);
 }
 
 void registerGuiObjects(ObjectRegistry& r) {

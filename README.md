@@ -29,7 +29,7 @@ cmake --preset default
 cmake --build build/default
 ```
 ```bash
-./build/default/src/app/qure qml/examples/01-hello-sine.pd
+./build/default/src/app/qure
 ```
 
 The preset expects Qt in `~/Qt/6.12.0/gcc_64`. Change `CMAKE_PREFIX_PATH` in
@@ -38,6 +38,19 @@ The preset expects Qt in `~/Qt/6.12.0/gcc_64`. Change `CMAKE_PREFIX_PATH` in
 Useful options: `--no-audio` never opens a sound device; `--dark` /
 `--light` choose the theme. Build with `-DQURE_BUILD_APP=OFF` to get only the
 engine and its tests.
+
+## Examples
+
+**File ▸ Examples** has three example projects. Each has its own QML nodes
+in a `nodes/` folder next to the patch, so you can read them as templates
+for your own (see [examples/README.md](examples/README.md)):
+
+* **Drum machine**: a QML step grid stores its pattern in its own
+  arguments, and animated QML pads trigger four synthesized voices.
+* **Wavetable synth**: draw a waveform with the mouse (written straight
+  into an engine array) and shape an ADSR envelope with draggable handles.
+* **Euclidean ambient**: euclidean rhythm rings drive FM bells through a
+  feedback delay, with a scrolling level plot.
 
 ## Tests
 
@@ -49,6 +62,10 @@ ctest --test-dir build/default --output-on-failure
   under a concurrently running engine thread, DSP correctness, and the `.pd`
   reader/writer. It also checks the built-in objects against Pd's
   behaviour.
+* `qure_tests` also loads each example project, runs its DSP, and checks
+  that it plays and reacts to its nodes' messages.
+* `qure_ui_example_tests` opens each example project as a user would, from
+  the Examples menu, and drives its QML nodes with the mouse.
 * `qure_ui_tests` (QtTest) runs the real editor end to end: placing and
   autopatching objects, connecting by dragging, undo/redo, message boxes,
   QML front ends sending through the engine, GPU rendering, and save/load.
