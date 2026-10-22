@@ -63,3 +63,18 @@ TEST_CASE("float formatting matches Pd", "[atoms]") {
     CHECK(formatFloat(1e-7) == "1e-07");
     CHECK(formatFloat(123456789) == "123456789");
 }
+
+TEST_CASE("numbers parse independently of the locale", "[atoms]") {
+    double v = 0;
+    CHECK(parseDouble("1e3", v));
+    CHECK(v == 1000);
+    CHECK(parseDouble("-0.5", v));
+    CHECK(v == -0.5);
+    CHECK(parseDouble("+4", v));
+    CHECK(v == 4);
+    CHECK(parseDouble(".25", v));
+    CHECK(v == 0.25);
+    CHECK_FALSE(parseDouble("1x", v));
+    CHECK_FALSE(parseDouble("1,5", v));
+    CHECK_FALSE(parseDouble("", v));
+}

@@ -81,7 +81,9 @@ jobs:
         if: failure()
         with:
           name: test-log-linux
-          path: build/Testing/Temporary/LastTest.log
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/test-reports/
           retention-days: 7
 
       - name: AppImage
@@ -148,7 +150,9 @@ jobs:
         if: failure()
         with:
           name: test-log-windows
-          path: build/Testing/Temporary/LastTest.log
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/test-reports/
           retention-days: 7
 
       - name: Package
@@ -194,7 +198,9 @@ jobs:
         if: failure()
         with:
           name: test-log-macos
-          path: build/Testing/Temporary/LastTest.log
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/test-reports/
           retention-days: 7
 
       - name: Disk image

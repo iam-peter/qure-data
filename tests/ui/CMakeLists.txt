@@ -10,12 +10,16 @@ function(qure_add_ui_test name source)
     qt_add_executable(${name} ${source})
     target_link_libraries(${name} PRIVATE qure_gui qure_guiplugin qure::options Qt6::Test)
     set_target_properties(${name} PROPERTIES WIN32_EXECUTABLE FALSE MACOSX_BUNDLE FALSE)
+    # A report file as well as the console: on Windows CTest does not
+    # capture the output of these programs; CI uploads build/test-reports.
+    set(report -o ${CMAKE_BINARY_DIR}/test-reports/${name}.txt,txt -o -,txt)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/test-reports)
     if(XVFB_RUN)
-        add_test(NAME ${name} COMMAND ${XVFB_RUN} -a -s "-screen 0 1280x900x24" $<TARGET_FILE:${name}>)
+        add_test(NAME ${name} COMMAND ${XVFB_RUN} -a -s "-screen 0 1280x900x24" $<TARGET_FILE:${name}> ${report})
     else()
         # Linux without Xvfb: offscreen. Windows and macOS (CI runners have a
         # desktop session): the native platform, which the GPU shaders need.
-        add_test(NAME ${name} COMMAND ${name})
+        add_test(NAME ${name} COMMAND ${name} ${report})
         if(UNIX AND NOT APPLE)
             set_tests_properties(${name} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
         endif()

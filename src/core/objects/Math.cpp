@@ -599,8 +599,8 @@ private:
             }
             tok_.kind = Tok::Number;
             tok_.text = std::string(text_.substr(start, pos_ - start));
-            // from_chars is locale independent (unlike stod).
-            std::from_chars(tok_.text.data(), tok_.text.data() + tok_.text.size(), tok_.number);
+            // Locale independent, unlike stod.
+            parseDouble(tok_.text, tok_.number);
             tok_.isInt = !isFloat;
             return;
         }

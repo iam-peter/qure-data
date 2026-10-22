@@ -69,6 +69,11 @@ using AtomVector = std::vector<Atom>;
 /// Formats a float the way Pd does (`%g`, six significant digits).
 std::string formatFloat(double f);
 
+/// Parses a whole string as a number ("1e3", "-0.5"), independent of the
+/// C locale (Qt sets it from the environment, and "1,5" must not parse).
+/// Returns false if `text` is not entirely a number.
+bool parseDouble(std::string_view text, double& out);
+
 /// Parses Pd's textual syntax: whitespace separated tokens, `;` and `,` as
 /// separators, backslash escapes, `$n` and dollar symbols. Numbers become
 /// floats only when the whole token is numeric (so `1e3` is a float but

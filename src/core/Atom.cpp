@@ -2,6 +2,8 @@
 #include "PdText.hpp"
 
 #include <charconv>
+#include <locale>
+#include <sstream>
 #include <format>
 #include <optional>
 
@@ -25,6 +27,25 @@ bool operator==(const Atom& a, const Atom& b) noexcept {
     case Atom::Type::Comma: return true;
     }
     return false;
+}
+
+bool parseDouble(std::string_view text, double& out) {
+    if (!text.empty() && text.front() == '+')
+        text.remove_prefix(1);
+    if (text.empty())
+        return false;
+#if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
+    const auto* end = text.data() + text.size();
+    const auto r = std::from_chars(text.data(), end, out);
+    return r.ec == std::errc{} && r.ptr == end;
+#else
+    // Apple's libc++ has no floating-point from_chars yet: a stream in the
+    // classic locale is the portable, locale-independent fallback.
+    std::istringstream in{std::string(text)};
+    in.imbue(std::locale::classic());
+    in >> out;
+    return !in.fail() && in.peek() == std::char_traits<char>::eof();
+#endif
 }
 
 std::string formatFloat(double f) {
@@ -70,10 +91,8 @@ bool isNumber(std::string_view s) {
 }
 
 double toDouble(std::string_view s) {
-    if (!s.empty() && s.front() == '+')
-        s.remove_prefix(1);
     double v = 0.0;
-    std::from_chars(s.data(), s.data() + s.size(), v);
+    parseDouble(s, v);
     return v;
 }
 
