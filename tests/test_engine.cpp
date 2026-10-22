@@ -127,6 +127,27 @@ TEST_CASE("subpatch inlets and outlets are compiled away", "[engine]") {
     CHECK(table.begin[0].object->className().str() == "list");
 }
 
+TEST_CASE("audio input is wanted only while a patch has adc~", "[engine]") {
+    Harness h;
+    CHECK_FALSE(h.rt.usesAudioInput());
+    auto& sine = h.open(R"(#N canvas 0 0 400 300 12;
+#X obj 10 10 osc~ 440;
+#X obj 10 40 dac~;
+#X connect 0 0 1 0;
+)");
+    CHECK_FALSE(h.rt.usesAudioInput());
+    // Nested in a subpatch counts too.
+    auto& mic = h.open(R"(#N canvas 0 0 400 300 12;
+#N canvas 0 0 300 200 inner 0;
+#X obj 10 10 adc~;
+#X restore 10 10 pd inner;
+)");
+    CHECK(h.rt.usesAudioInput());
+    h.rt.closePatch(mic);
+    CHECK_FALSE(h.rt.usesAudioInput());
+    h.rt.closePatch(sine);
+}
+
 TEST_CASE("editing: retext keeps fitting connections", "[engine]") {
     Harness h;
     auto& c = h.rt.newPatch();

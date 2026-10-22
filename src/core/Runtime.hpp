@@ -46,6 +46,10 @@ public:
 
     /// Messages produced while compiling (e.g. "DSP loop detected").
     [[nodiscard]] const std::vector<std::string>& compileWarnings() const noexcept { return warnings_; }
+    /// Whether an open patch contains [adc~], as of the last commit. Audio
+    /// input is opened only then: on a Bluetooth headset, opening the
+    /// microphone switches playback to the low-quality headset profile.
+    [[nodiscard]] bool usesAudioInput() const noexcept { return usesAudioInput_; }
 
     // ---- abstractions: `name.qd`, then `name.pd`, next to the patch or
     // in a search path ----
@@ -67,6 +71,7 @@ private:
     ObjectRegistry registry_;
     std::vector<std::unique_ptr<Canvas>> patches_;
     std::vector<std::string> warnings_;
+    bool usesAudioInput_ = false;
     BoxId nextBoxId_ = 1;
     int nextDollarZero_ = 1000;
     int abstractionDepth_ = 0;

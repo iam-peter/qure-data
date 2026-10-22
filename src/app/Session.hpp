@@ -123,6 +123,7 @@ private:
     void pump();
     void startAudio(int playback, int capture);
     void startSilent();
+    void syncAudioInput();
     /// Loads `<dir>/nodes/nodes.json` (a project's own node pack), if any.
     void loadProjectNodes(const QString& dir);
     void rebuildClassList();
@@ -140,6 +141,7 @@ private:
     QStringList classes_, playbackDevices_, captureDevices_;
     QString audioStatus_;
     bool dsp_ = false;
+    bool audioInput_ = false; ///< input requested from the driver
     double cpuLoad_ = 0;
     Audio audioMode_;
     int untitled_ = 1;

@@ -17,7 +17,7 @@ struct AudioDeviceInfo {
 struct AudioSettings {
     int playbackDevice = -1; ///< -1: system default
     int captureDevice = -1;
-    bool enableInput = true;
+    bool enableInput = false; ///< open the capture device at start (see setInputEnabled)
     int bufferFrames = 256;  ///< device period; the engine still runs 64-sample blocks
 };
 
@@ -31,6 +31,9 @@ public:
     [[nodiscard]] virtual bool running() const = 0;
     [[nodiscard]] virtual std::string description() const = 0;
     [[nodiscard]] virtual std::string lastError() const { return {}; }
+    /// Opens or closes audio input while running; playback goes on
+    /// undisturbed. Returns false if the input could not be opened.
+    virtual bool setInputEnabled(bool) { return true; }
     /// Fraction of the available time spent computing audio (0..1+),
     /// smoothed. 1 means the engine just keeps up.
     [[nodiscard]] virtual double load() const { return 0.0; }

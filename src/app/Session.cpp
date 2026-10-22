@@ -375,6 +375,22 @@ void Session::startAudio(int playback, int capture) {
     audioStatus_ = QString::fromStdString(driver_->description());
     postInfo(tr("audio: %1").arg(audioStatus_));
     emit audioStatusChanged();
+    audioInput_ = false;
+    syncAudioInput();
+}
+
+// The microphone is open only while DSP runs and a patch has [adc~].
+// Opening it needlessly costs more than a privacy indicator: it switches a
+// Bluetooth headset from stereo playback to its narrow-band call profile.
+void Session::syncAudioInput() {
+    const bool want = dsp_ && runtime_->usesAudioInput();
+    if (!driver_ || want == audioInput_)
+        return;
+    audioInput_ = want;
+    if (!driver_->setInputEnabled(want))
+        postError(tr("audio: %1").arg(QString::fromStdString(driver_->lastError())));
+    audioStatus_ = QString::fromStdString(driver_->description());
+    emit audioStatusChanged();
 }
 
 void Session::restartAudio(int playbackDevice, int captureDevice) { startAudio(playbackDevice, captureDevice); }
@@ -412,6 +428,7 @@ void Session::pump() {
         }
     });
     runtime_->collectGarbage();
+    syncAudioInput();
 
     const double load = driver_ ? driver_->load() : 0.0;
     if (std::abs(load - cpuLoad_) > 0.005) {

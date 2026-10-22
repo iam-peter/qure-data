@@ -3,6 +3,7 @@
 #include "PdFile.hpp"
 #include "Plan.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -59,10 +60,18 @@ void Runtime::closePatch(Canvas& patch) {
     commit();
 }
 
+static bool containsClass(const Canvas& canvas, Symbol cls) {
+    return std::ranges::any_of(canvas.boxes(), [&](const auto& b) {
+        return (b->object && b->object->className() == cls) || (b->child && containsClass(*b->child, cls));
+    });
+}
+
 void Runtime::commit() {
     warnings_.clear();
     engine_.publish(compilePlan(patches_, warnings_, engine_.config().blockSize));
     engine_.reclaim();
+    const Symbol adc("adc~");
+    usesAudioInput_ = std::ranges::any_of(patches_, [&](const auto& p) { return containsClass(*p, adc); });
 }
 
 static void collectLoadbangs(const Canvas& canvas, std::vector<ObjectId>& out) {
