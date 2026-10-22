@@ -272,6 +272,10 @@ void CanvasView::mousePressEvent(QMouseEvent* e) {
     const QPointF p = toCanvas(pos);
     lastItem_ = pos;
     pressCanvas_ = lastCanvas_ = p;
+    // A click shows where the mouse is even without hover events (touch
+    // screens have none): placing a box goes there.
+    mouseCanvas_ = p;
+    mouseInside_ = true;
     Canvas* c = model();
     if (!c) {
         e->ignore();

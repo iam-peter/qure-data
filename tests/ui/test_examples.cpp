@@ -142,9 +142,13 @@ private slots:
         QVERIFY(draw);
         // Paint a flat line near the top across the whole cycle.
         drag(at(QPointF(draw->x + 2, draw->y + 6)), at(QPointF(draw->x + draw->w - 2, draw->y + 6)));
-        QTRY_VERIFY_WITH_TIMEOUT(session_->readArray(QStringLiteral("wavetable")).value(10) > 0.8f, 3000);
-        const auto after = session_->readArray(QStringLiteral("wavetable"));
-        QVERIFY(std::all_of(after.begin(), after.end(), [](float v) { return v > 0.8f; }));
+        // The engine republishes the array at most every 30 ms, so wait for
+        // the whole stroke rather than the first point.
+        auto allHigh = [&] {
+            const auto a = session_->readArray(QStringLiteral("wavetable"));
+            return a.size() == 35 && std::all_of(a.begin(), a.end(), [](float v) { return v > 0.8f; });
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(allHigh(), 3000);
     }
 
     void adsrHandleDragChangesAttack() {

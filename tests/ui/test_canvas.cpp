@@ -102,7 +102,10 @@ private slots:
 
     void typesANewObject() {
         view_->setEditMode(true);
-        QTest::mouseMove(window_, at(QPointF(100, 80)));
+        // A click on empty canvas, then the shortcut: the box goes there.
+        // (A plain mouse move would do on X11, but synthetic moves produce
+        // no hover events on Windows and macOS.)
+        QTest::mouseClick(window_, Qt::LeftButton, {}, at(QPointF(100, 80)));
         QTest::keyClick(window_, Qt::Key_1, Qt::ControlModifier);
         type("osc~ 440");
         QTest::keyClick(window_, Qt::Key_Return);
